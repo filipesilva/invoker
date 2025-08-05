@@ -1,0 +1,4 @@
+{:bbin/bin       {nvk {:main-opts ["-m" "invoker.nvk"]}}
+ :min-bb-version "1.12.208"
+ :deps           {io.github.filipesilva/invoker {:local/root "."}}
+ :paths          ["src" "test" "resources"]}
