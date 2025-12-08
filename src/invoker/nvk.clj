@@ -38,7 +38,7 @@
    [:aliases         {:desc   "Aliases to call Clojure with, does nothing with Babashka"
                       :coerce :string
                       :alias  :a}]
-   [:dev-tools       {:desc    "Developer tools fn to call on process creation"
+   [:devtools        {:desc    "Developer tools fn to call on process creation"
                       :coerce  :symbol
                       :alias   :dt
                       :default 'invoker.utils/dev-tools}]
@@ -91,11 +91,6 @@
    [:render          {:desc    "Map of MIME type regex to edn rendering fn"
                       :coerce  :symbol
                       :default 'invoker.utils/render}]
-   ;; TODO
-   [:force-cli       {:desc    "Force CLI invoke, use with :prefix if you have fns with same name as commands"
-                      :coerce  :boolean
-                      :alias   :fc
-                      :default false}]
    ;; TODO
    [:print-meta      {:desc    "Print return metadata"
                       :coerce  :boolean

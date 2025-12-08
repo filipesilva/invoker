@@ -100,7 +100,7 @@
 (defn devtools
   "Call devtools var."
   []
-  (if-let [var (-> *cmd* :opts :dev-tools)]
+  (if-let [var (-> *cmd* :opts :devtools)]
     ((requiring-resolve var))
     (throw (ex-info "No devtools symbol provided" *cmd*))))
 
