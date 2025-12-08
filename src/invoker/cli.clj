@@ -63,9 +63,8 @@
   (clojure.repl/find-doc (re-pattern str-or-pattern)))
 
 (defn apropos
-  "Given a regular expression or stringable thing, return a seq of all
-  public definitions in all currently-loaded namespaces that match the
-  str-or-pattern."
+  "Given a regular expression or stringable thing, print all public
+  definitions in all currently-loaded namespaces that match the str-or-pattern."
   [str-or-pattern]
   (run! println (clojure.repl/apropos (re-pattern str-or-pattern))))
 

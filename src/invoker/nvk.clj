@@ -234,10 +234,6 @@
 
 ;; TODO: now
 ;; - use claude for some of the nows, otherwise I won't move forward quickly
-;; - https://corfield.org/blog/2025/08/08/deps/
-;;   - does nvk doc ns list all the docsctrings in the ns? I think the deps version does
-;;   - the last part (project help) shows help for the project fns
-;;     - does it load everything? I'm loading everything right now, would be nice not to
 ;; - use help from sym metadata?
 ;; - nvk reload without repl fails, need to exit with a warning no repl is up
 ;; - default 0 for random nrepl port
