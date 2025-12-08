@@ -159,8 +159,9 @@
    [:blue "  nvk source app/my-fn"] "       Source code for var\n"
    [:blue "  nvk find-doc My doc"] "        Find docs containing text\n"
    [:blue "  nvk apropos my-f"] "           Find vars containing text\n"
-   ;; TODO: add example dep
-   [:blue "  nvk add-deps"] "               Add dependency by name, create deps.edn if needed\n\n"
+   [:blue "  nvk add-lib babashka/fs"] "    Add dependency by name, create deps.edn if needed\n"
+   [:blue "  nvk sync-deps"] "              Sync dependencies to process\n\n"
+
 
    [:purple "Options"] ", custom defaults can be set in " [:purple "nvk.edn"] ":\n"
    (cli/format-opts {:spec (into {} spec), :order [:help :help-options :version :config :prefix :http-port :repl-port]})))
@@ -237,7 +238,6 @@
 ;;   - does nvk doc ns list all the docsctrings in the ns? I think the deps version does
 ;;   - the last part (project help) shows help for the project fns
 ;;     - does it load everything? I'm loading everything right now, would be nice not to
-;; - use help from sym metadata?
 ;; - nvk reload without repl fails, need to exit with a warning no repl is up
 ;; - default 0 for random nrepl port
 ;; - maybe a nvk devtools to add devtools to running repl? maybe nvk setup too?

@@ -6,6 +6,7 @@
    [clojure.edn :as edn]
    [clojure.java.io :as io]
    [clojure.repl]
+   [clojure.repl.deps]
    [clojure.tools.namespace.find :as ns-find]
    [invoker.utils :as utils]))
 
@@ -64,6 +65,18 @@
   str-or-pattern."
   [str-or-pattern]
   (run! println (clojure.repl/apropos (re-pattern str-or-pattern))))
+
+(defn add-lib
+  "Given a lib that is not yet on the repl classpath, make it available by
+  downloading the library if necessary and adding it to the classloader.
+  Libs already on the classpath are not updated."
+  [lib]
+  (clojure.repl.deps/add-lib (symbol lib)))
+
+(defn sync-deps
+  "Calls add-libs with any libs present in deps.edn but not yet present on the classpath."
+  []
+  (clojure.repl.deps/sync-deps))
 
 (defn test
   "Run tests for symbols, or all tests in the test folder if no symbols are passed.
