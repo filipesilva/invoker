@@ -8,6 +8,18 @@
    [invoker.http :as http]
    [invoker.utils :as utils]))
 
+(deftest require-ns-or-sym-test
+  (is (= (find-ns 'clojure.string) (utils/require-ns-or-sym "clojure.string")))
+  (is (= #'clojure.string/join (utils/require-ns-or-sym "clojure.string/join")))
+  (is (= (find-ns 'clojure.set) (utils/require-ns-or-sym 'clojure.set)))
+  (is (= #'clojure.set/union (utils/require-ns-or-sym 'clojure.set/union)))
+
+  (are [sexp] (thrown-with-msg? clojure.lang.ExceptionInfo #"Cannot find symbol" sexp)
+    (utils/require-ns-or-sym "not.a.namespace")
+    (utils/require-ns-or-sym "clojure.string/not-a-fn")
+    (utils/require-ns-or-sym 'also.not.a.namespace)
+    (utils/require-ns-or-sym 'clojure.set/not-a-fn)))
+
 (deftest parse-var-and-args-test
   (is (= [#'examples/a-fn []]
          (utils/parse-var-and-args ["invoker.examples/a-fn"])

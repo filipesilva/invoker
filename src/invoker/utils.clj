@@ -50,6 +50,21 @@
   (dev-tools)
   ,)
 
+(defn require-ns-or-sym
+  "Given a string or symbol, requires and returns the namespace if unqualified,
+   or requires the namespace and returns the var if qualified."
+  [ns-or-sym]
+  (let [sym (if (string? ns-or-sym) (symbol ns-or-sym) ns-or-sym)
+        ex  (ex-info "Cannot find symbol" {:ns-or-sym ns-or-sym})]
+    (try
+      (or
+       (if (namespace sym)
+         (requiring-resolve sym)
+         (do (require sym) (find-ns sym)))
+       (throw ex))
+      (catch Exception _
+        (throw ex)))))
+
 (defn all-ns-strs []
   (->> (all-ns) (map (comp str ns-name)) set))
 

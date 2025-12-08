@@ -38,12 +38,14 @@
 (defn dir
   "Prints a sorted directory of public vars in a namespace"
   [nsname]
+  (utils/require-ns-or-sym nsname)
   (eval `(clojure.repl/dir ~(edn/read-string nsname))))
 
 (defn doc
   "Prints documentation for a var or special form given its name,
   or for a spec if given a keyword"
   [name]
+  (utils/require-ns-or-sym name)
   (eval `(clojure.repl/doc ~(edn/read-string name))))
 
 (defn source
@@ -51,6 +53,7 @@
   This requires that the symbol resolve to a Var defined in a
   namespace for which the .clj is in the classpath."
   [n]
+  (utils/require-ns-or-sym n)
   (eval `(clojure.repl/source ~(edn/read-string n))))
 
 (defn find-doc
