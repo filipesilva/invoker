@@ -244,7 +244,6 @@
 
 ;; TODO: now
 ;; - use claude for some of the nows, otherwise I won't move forward quickly
-;; - resolve sym shortest first, and compare against list of known ns
 ;; - https://corfield.org/blog/2025/08/08/deps/
 ;;   - ns-default and ns-aliases are really interesting
 ;;     - nvk could use it, then the default commands would just be fns in the ns-default
@@ -259,6 +258,7 @@
 ;;   - does nvk doc ns list all the docsctrings in the ns? I think the deps version does
 ;;   - the last part (project help) shows help for the project fns
 ;;     - does it load everything? I'm loading everything right now, would be nice not to
+;; - use help from sym metadata?
 ;; - nvk reload without repl fails, need to exit with a warning no repl is up
 ;; - default 0 for random nrepl port
 ;; - maybe a nvk devtools to add devtools to running repl? maybe nvk setup too?

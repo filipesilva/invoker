@@ -54,6 +54,9 @@
   (try (requiring-resolve (symbol var-str))
        (catch Exception _)))
 
+(defn all-ns-strs []
+  (->> (all-ns) (map (comp str ns-name)) set))
+
 (defn parse-var-and-args [var-and-args]
   (let [not-found (ex-info "Cannot resolve var" {:var-and-args var-and-args, :status 404})]
     (or
@@ -67,14 +70,18 @@
         (vec (rest var-and-args))]
 
        :else
-       (loop [name-seq var-and-args
-              raw-args '()]
-         (when (seq name-seq)
-           (let [ns-seq (butlast name-seq)
-                 name'  (last name-seq)]
-             (if-let [var (resolve-var-str (str (str/join "." ns-seq) "/" name'))]
-               [var (vec raw-args)]
-               (recur ns-seq (conj raw-args name')))))))
+       (loop [[x & xs] var-and-args
+              possible-ns (all-ns-strs)
+              ns-str ""]
+         (when x
+           (or
+            (when (contains? possible-ns ns-str)
+              (when-let [var (resolve-var-str (str ns-str "/" x))]
+                [var (vec xs)]))
+            (let [ns-str'      (if (seq ns-str) (str ns-str "." x) x)
+                  possible-ns' (into #{} (filter #(str/starts-with? % ns-str')) possible-ns)]
+              (when (seq possible-ns')
+                (recur xs possible-ns' ns-str')))))))
      (throw not-found))))
 
 (defn parse-raw-args [var raw-args]
