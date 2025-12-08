@@ -53,10 +53,14 @@
   (clj-reload/reload (when all {:only :all})))
 
 (defn dir
-  "Prints a sorted directory of public vars in a namespace"
-  [nsname]
-  (utils/require-ns-or-sym nsname)
-  (eval `(clojure.repl/dir ~(edn/read-string nsname))))
+  "Prints a sorted directory of public vars in a namespace, or ns-default."
+  ([]
+   (if-let [ns-default (-> *cmd* :opts :ns-default)]
+     (dir (str ns-default))
+     (throw (ex-info "No namespace provided and no ns-default set" {}))))
+  ([nsname]
+   (utils/require-ns-or-sym nsname)
+   (eval `(clojure.repl/dir ~(edn/read-string nsname)))))
 
 (defn doc
   "Prints documentation for a var or special form given its name,
@@ -120,6 +124,6 @@
 (defn exit
   "Exit the process with exit-code or 0."
   ([]
-   (System/exit 0))
+   (exit 0))
   ([exit-code]
    (System/exit exit-code)))
