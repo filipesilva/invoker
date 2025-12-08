@@ -4,27 +4,13 @@
    [clj-reload.core :as clj-reload]
    [clojure+.test :as clojure+.test]
    [clojure.edn :as edn]
-   [clojure.java.classpath :as cp]
+   [clojure.java.io :as io]
    [clojure.repl]
-   [clojure.string :as str]
    [clojure.tools.namespace.find :as ns-find]
    [invoker.utils :as utils]))
 
-(defn load-all []
-  (let [cwd (System/getProperty "user.dir")]
-    (doseq [dir    (filter #(and (.isDirectory %)
-                                 (or (not (.isAbsolute %))
-                                     (.startsWith (.getPath %) cwd)))
-                           (cp/classpath))
-            ns-sym (ns-find/find-namespaces-in-dir dir)]
-      (require ns-sym))))
-
 (defn invoke [cmd]
   (let [{:keys [exit]} (:opts cmd)]
-    (when (-> cmd :opts :load-all)
-      (load-all))
-    (when (-> cmd :opts :reload)
-      (with-out-str (clj-reload/reload)))
     (try
       (let [[var raw-args]       (utils/parse-var-and-args (:args cmd) (:opts cmd))
             [args opts]          (utils/parse-raw-args var raw-args)
@@ -43,25 +29,50 @@
           (utils/print-err-exit exit 2 e)
           (throw e))))))
 
-(defn reload [cmd]
-  (clj-reload/reload (when (-> cmd :opts :all) {:only :all})))
+(defn reload
+  "Reload changed namespaces, or all namespaces if all is true."
+  [& {:keys [all]}]
+  (clj-reload/reload (when all {:only :all})))
 
-(defn dir [& args]
-  (eval `(clojure.repl/dir ~(-> args first edn/read-string))))
+(defn dir
+  "Prints a sorted directory of public vars in a namespace"
+  [nsname]
+  (eval `(clojure.repl/dir ~(edn/read-string nsname))))
 
-(defn doc [& args]
-  (eval `(clojure.repl/doc ~(-> args first edn/read-string))))
+(defn doc
+  "Prints documentation for a var or special form given its name,
+  or for a spec if given a keyword"
+  [name]
+  (eval `(clojure.repl/doc ~(edn/read-string name))))
 
-(defn source [& args]
-  (eval `(clojure.repl/source ~(-> args first edn/read-string))))
+(defn source
+  "Prints the source code for the given symbol, if it can find it.
+  This requires that the symbol resolve to a Var defined in a
+  namespace for which the .clj is in the classpath."
+  [n]
+  (eval `(clojure.repl/source ~(edn/read-string n))))
 
-(defn find-doc [& args]
-  (clojure.repl/find-doc (str/join " " args)))
+(defn find-doc
+  "Prints documentation for any var whose documentation or name
+  contains a match for re-string-or-pattern"
+  [str-or-pattern]
+  (clojure.repl/find-doc (re-pattern str-or-pattern)))
 
-(defn apropos [& args]
-  (run! println (clojure.repl/apropos (first args))))
+(defn apropos
+  "Given a regular expression or stringable thing, return a seq of all
+  public definitions in all currently-loaded namespaces that match the
+  str-or-pattern."
+  [str-or-pattern]
+  (run! println (clojure.repl/apropos (re-pattern str-or-pattern))))
 
-(defn test [& args]
-  (let [{:as summary, :keys [fail error]} (apply clojure+.test/run (map symbol args))]
+(defn test
+  "Run tests for symbols, or all tests in the test folder if no symbols are passed.
+  Reloads changed namespaces before running tests."
+  [& symbols]
+  (reload)
+  (let [syms (map symbol symbols)
+        _ (when (empty? syms) (run! require (ns-find/find-namespaces-in-dir (io/file "test"))))
+        {:as summary, :keys [fail error]} (apply clojure+.test/run syms)]
     (when (pos-int? (+ fail error))
       (throw (ex-info "Tests failed" summary)))))
+

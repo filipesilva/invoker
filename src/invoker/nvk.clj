@@ -189,25 +189,10 @@
     :else
     (utils/connect-or-exec 'invoker.cli/invoke cmd)))
 
-(defn- cmd-alias [sym]
-  (fn [cmd]
-    (let [cmd' (-> cmd
-                   (update :opts merge {:load-all true, :reload true})
-                   (update :args #(into [sym] %)))]
-      (utils/connect-or-exec 'invoker.cli/invoke cmd'))))
-
 (defn commands [spec]
   [;; main commands
    {:cmds ["http"]     :fn (partial utils/connect-or-exec 'invoker.http/server)}
    {:cmds ["repl"]     :fn (partial utils/exec :clj 'invoker.repl/run)}
-   {:cmds ["test"]     :fn (cmd-alias 'invoker.cli/test)}
-   ;; helper commands
-   {:cmds ["reload"]   :fn (partial utils/connect 'invoker.cli/reload)}
-   {:cmds ["dir"]      :fn (cmd-alias 'invoker.cli/dir)}
-   {:cmds ["doc"]      :fn (cmd-alias 'invoker.cli/doc)}
-   {:cmds ["source"]   :fn (cmd-alias 'invoker.cli/source)}
-   {:cmds ["find-doc"] :fn (cmd-alias 'invoker.cli/find-doc)}
-   {:cmds ["apropos"]  :fn (cmd-alias 'invoker.cli/apropos)}
    ;; help, version, and cli invoke
    {:cmds []           :fn (partial no-command spec) :spec spec}])
 
@@ -249,9 +234,6 @@
 ;; TODO: now
 ;; - use claude for some of the nows, otherwise I won't move forward quickly
 ;; - https://corfield.org/blog/2025/08/08/deps/
-;;   - basis or something might give me the built deps for the project?
-;;     - would be useful for computed paths
-;;     - https://clojure.org/reference/deps_edn#basis
 ;;   - does nvk doc ns list all the docsctrings in the ns? I think the deps version does
 ;;   - the last part (project help) shows help for the project fns
 ;;     - does it load everything? I'm loading everything right now, would be nice not to
