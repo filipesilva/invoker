@@ -10,6 +10,8 @@
    [clojure.tools.namespace.find :as ns-find]
    [invoker.utils :as utils]))
 
+(def ^:dynamic *cmd* nil)
+
 (defn invoke [cmd]
   (let [{:keys [exit]} (:opts cmd)]
     (try
@@ -21,7 +23,8 @@
                                    [args])
             {:keys [exception?
                     exception-str
-                    return-str]} (utils/invoke (merge {:var var, :args args, :body body :opts opts} cmd-opts))]
+                    return-str]} (binding [*cmd* cmd]
+                                   (utils/invoke (merge {:var var, :args args, :body body :opts opts} cmd-opts)))]
         (if exception?
           (utils/print-err-exit exit 1 exception-str)
           (print return-str)))
@@ -29,6 +32,19 @@
         (if (utils/ex-info-msgs (ex-message e))
           (utils/print-err-exit exit 2 e)
           (throw e))))))
+
+(declare reload)
+
+(defn test
+  "Run tests for symbols, or all tests in the test folder if no symbols are passed.
+  Reloads changed namespaces before running tests."
+  [& symbols]
+  (reload)
+  (let [syms (map symbol symbols)
+        _ (when (empty? syms) (run! require (ns-find/find-namespaces-in-dir (io/file "test"))))
+        {:as summary, :keys [fail error]} (apply clojure+.test/run syms)]
+    (when (pos-int? (+ fail error))
+      (throw (ex-info "Tests failed" summary)))))
 
 (defn reload
   "Reload changed namespaces, or all namespaces if all is true."
@@ -80,14 +96,24 @@
   []
   (clojure.repl.deps/sync-deps))
 
-(defn test
-  "Run tests for symbols, or all tests in the test folder if no symbols are passed.
-  Reloads changed namespaces before running tests."
-  [& symbols]
-  (reload)
-  (let [syms (map symbol symbols)
-        _ (when (empty? syms) (run! require (ns-find/find-namespaces-in-dir (io/file "test"))))
-        {:as summary, :keys [fail error]} (apply clojure+.test/run syms)]
-    (when (pos-int? (+ fail error))
-      (throw (ex-info "Tests failed" summary)))))
+(defn devtools
+  "Call devtools var."
+  []
+  (if-let [var (-> *cmd* :opts :dev-tools)]
+    ((requiring-resolve var))
+    (throw (ex-info "No devtools symbol provided" *cmd*))))
+
+(defn setup
+  "Call setup var."
+  []
+  (if-let [var (-> *cmd* :opts :setup)]
+    ((requiring-resolve var))
+    (throw (ex-info "No setup symbol provided" *cmd*))))
+
+(defn exit
+  "Exit the process with exit-code or 0."
+  ([]
+   (System/exit 0))
+  ([exit-code]
+   (System/exit exit-code)))
 

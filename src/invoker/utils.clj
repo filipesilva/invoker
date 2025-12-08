@@ -23,7 +23,8 @@
     "Cannot render return"
     "Cannot negotiate content-type mime-type"
     "Cannot negotiate accept mime-type"
-    "Cannot connect to nREPL server"})
+    "Cannot connect to nREPL server"
+    "nREPL server exited"})
 
 (defmacro try-bool
   [expr]
@@ -312,7 +313,9 @@
         expr        (format "((requiring-resolve '%s) '%s)" sym cmd)
         ret         (try (nrepl-client/eval-expr {:port port :expr expr})
                          (catch java.net.ConnectException _
-                           (throw (ex-info "Cannot connect to nREPL server" {:host host, :port port}))))]
+                           (throw (ex-info "Cannot connect to nREPL server" {:host host, :port port})))
+                         (catch java.io.EOFException _
+                             (throw (ex-info "nREPL server exited" {:host host, :port port}))))]
     (System/exit (-> ret :vals last edn/read-string :exit-code (or 0)))))
 
 (defn connect-or-exec [sym cmd]

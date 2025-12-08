@@ -160,8 +160,10 @@
    [:blue "  nvk find-doc My doc"] "        Find docs containing text\n"
    [:blue "  nvk apropos my-f"] "           Find vars containing text\n"
    [:blue "  nvk add-lib babashka/fs"] "    Add dependency by name, create deps.edn if needed\n"
-   [:blue "  nvk sync-deps"] "              Sync dependencies to process\n\n"
-
+   [:blue "  nvk sync-deps"] "              Sync dependencies to process\n"
+   [:blue "  nvk devtools"] "               Call devtools var\n"
+   [:blue "  nvk setup"] "                  Call setup var\n"
+   [:blue "  nvk exit 1"] "                 Exit the process with exit-code or 0\n\n"
 
    [:purple "Options"] ", custom defaults can be set in " [:purple "nvk.edn"] ":\n"
    (cli/format-opts {:spec (into {} spec), :order [:help :help-options :version :config :prefix :http-port :repl-port]})))
@@ -237,9 +239,6 @@
 ;; - use help from sym metadata?
 ;; - nvk reload without repl fails, need to exit with a warning no repl is up
 ;; - default 0 for random nrepl port
-;; - maybe a nvk devtools to add devtools to running repl? maybe nvk setup too?
-;; - make aliases for reals, and make these the default ones
-;; - --load-all opt, use it to load all files for the alias cmds
 ;; - nvk test fail should put in error list of failed tests
 ;; - just nvk should tell you about the repl/http server being up or not
 ;; - https://clojure.org/reference/deps_edn recommends using aliases for config
