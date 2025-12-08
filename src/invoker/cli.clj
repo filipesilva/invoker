@@ -1,6 +1,7 @@
 (ns invoker.cli
   (:refer-clojure :exclude [test])
   (:require
+   [babashka.process :as process]
    [clj-reload.core :as clj-reload]
    [clojure+.test :as clojure+.test]
    [clojure.edn :as edn]
@@ -110,10 +111,15 @@
     ((requiring-resolve var))
     (throw (ex-info "No setup symbol provided" *cmd*))))
 
+(defn clojuredocs
+  "Search ClojureDocs for q."
+  [q]
+  (let [url (str "https://clojuredocs.org/search?q=" q)]
+    (process/shell "open" url)))
+
 (defn exit
   "Exit the process with exit-code or 0."
   ([]
    (System/exit 0))
   ([exit-code]
    (System/exit exit-code)))
-

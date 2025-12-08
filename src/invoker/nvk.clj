@@ -163,6 +163,7 @@
    [:blue "  nvk sync-deps"] "              Sync dependencies to process\n"
    [:blue "  nvk devtools"] "               Call devtools var\n"
    [:blue "  nvk setup"] "                  Call setup var\n"
+   [:blue "  nvk clojuredocs q"] "          Search ClojureDocs for q\n"
    [:blue "  nvk exit 1"] "                 Exit the process with exit-code or 0\n\n"
 
    [:purple "Options"] ", custom defaults can be set in " [:purple "nvk.edn"] ":\n"
@@ -236,10 +237,9 @@
 
 ;; TODO: now
 ;; - use claude for some of the nows, otherwise I won't move forward quickly
-;; - use help from sym metadata?
+;; - use help from sym metadata? or list docstring from ns-default?
 ;; - nvk reload without repl fails, need to exit with a warning no repl is up
 ;; - default 0 for random nrepl port
-;; - nvk test fail should put in error list of failed tests
 ;; - just nvk should tell you about the repl/http server being up or not
 ;; - https://clojure.org/reference/deps_edn recommends using aliases for config
 ;;   - so :invoker alias instead of nvk.edn?
