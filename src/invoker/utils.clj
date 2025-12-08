@@ -50,33 +50,45 @@
   (dev-tools)
   ,)
 
-(defn resolve-var-str [var-str]
-  (try (requiring-resolve (symbol var-str))
-       (catch Exception _)))
-
 (defn all-ns-strs []
   (->> (all-ns) (map (comp str ns-name)) set))
 
-(defn parse-var-and-args [var-and-args]
-  (let [not-found (ex-info "Cannot resolve var" {:var-and-args var-and-args, :status 404})]
+(defn- apply-ns-alias [sym ns-aliases]
+  (if-let [expanded (get ns-aliases (symbol (namespace sym)))]
+    (symbol (str expanded) (name sym))
+    sym))
+
+(defn- resolve-var-str [var-str ns-aliases]
+  (try (requiring-resolve (apply-ns-alias (symbol var-str) ns-aliases))
+       (catch Exception _)))
+
+(defn parse-var-and-args [var-and-args & {:keys [ns-default ns-aliases]}]
+  (let [not-found (ex-info "Cannot resolve var" {:var-and-args var-and-args,
+                                                 :ns-default ns-default
+                                                 :ns-aliases ns-aliases
+                                                 :status 404})]
     (or
      (cond
        (empty? var-and-args)
        nil
 
        (str/includes? (first var-and-args) "/")
-       [(or (resolve-var-str (first var-and-args))
+       [(or (resolve-var-str (first var-and-args) ns-aliases)
             (throw not-found))
         (vec (rest var-and-args))]
 
        :else
        (loop [[x & xs] var-and-args
-              possible-ns (all-ns-strs)
+              possible-ns (into (all-ns-strs) (->> ns-aliases keys (map str)))
               ns-str ""]
          (when x
            (or
+            ;; try ns-default first if set and no ns accumulated yet
+            (when (and ns-default (= ns-str ""))
+              (when-let [var (resolve-var-str (str ns-default "/" x) ns-aliases)]
+                [var (vec xs)]))
             (when (contains? possible-ns ns-str)
-              (when-let [var (resolve-var-str (str ns-str "/" x))]
+              (when-let [var (resolve-var-str (str ns-str "/" x) ns-aliases)]
                 [var (vec xs)]))
             (let [ns-str'      (if (seq ns-str) (str ns-str "." x) x)
                   possible-ns' (into #{} (filter #(str/starts-with? % ns-str')) possible-ns)]

@@ -23,7 +23,18 @@
     (utils/parse-var-and-args [])
     (utils/parse-var-and-args ["invoker.examples/not-a-fn"])
     (utils/parse-var-and-args ["invoker" "examples/not-a-fn"])
-    (utils/parse-var-and-args ["invoker" "examples" "not-a-fn"])))
+    (utils/parse-var-and-args ["invoker" "examples" "not-a-fn"]))
+
+  (testing "ns-default"
+    (is (= [#'examples/a-fn ["1"]]
+           (utils/parse-var-and-args ["a-fn" "1"] :ns-default 'invoker.examples)))
+    (is (= [#'examples/a-fn ["1"]]
+           (utils/parse-var-and-args ["invoker" "examples" "a-fn" "1"] :ns-default 'some.other.ns))))
+
+  (testing "ns-aliases"
+    (is (= [#'examples/a-fn ["1"]]
+           (utils/parse-var-and-args ["ex/a-fn" "1"] :ns-aliases '{ex invoker.examples})
+           (utils/parse-var-and-args ["ex" "a-fn" "1"] :ns-aliases '{ex invoker.examples})))))
 
 (deftest parse-raw-args-test
   (are [raw-args ret] (= ret (utils/parse-raw-args #'examples/a-fn raw-args))
@@ -180,7 +191,7 @@
     (is (= "hello world" (cli {:args ["invoker.examples/pre-render" "world"], :opts {:accept "text/plain"}}))))
   (let [cli           #(with-err-str (cli/invoke (assoc-in % [:opts :exit] false)))
         cli-exit-code #(:exit-code (ignore-err (cli/invoke (assoc-in % [:opts :exit] false))))]
-    (is (= "{:cause \"Cannot resolve var\",\n :data {:var-and-args [\"foo\"], :status 404}}\n" (cli {:args ["foo"]})))
+    (is (= "{:cause \"Cannot resolve var\",\n :data\n {:var-and-args [\"foo\"], :ns-default nil, :ns-aliases nil, :status 404}}\n" (cli {:args ["foo"]})))
     (is (= 2 (cli-exit-code {:args ["foo"]})))
     (is (= "{:cause \"Divide by zero\"}\n" (cli {:args ["invoker.examples/exception"]})))
     (is (= 1 (cli-exit-code {:args ["invoker.examples/exception"]})))))

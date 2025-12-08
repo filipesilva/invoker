@@ -26,7 +26,7 @@
     (when (-> cmd :opts :reload)
       (with-out-str (clj-reload/reload)))
     (try
-      (let [[var raw-args]       (utils/parse-var-and-args (:args cmd))
+      (let [[var raw-args]       (utils/parse-var-and-args (:args cmd) (:opts cmd))
             [args opts]          (utils/parse-raw-args var raw-args)
             cmd-opts             (select-keys (:opts cmd) [:content-type :accept :ex-trace])
             [args body]          (if (:content-type cmd-opts)

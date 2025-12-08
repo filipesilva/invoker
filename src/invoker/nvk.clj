@@ -23,10 +23,14 @@
                       :coerce  :string
                       :alias   :c
                       :default "nvk.edn"}]
-   ;; TODO
-   [:prefix          {:desc   "Enforced namespace prefix on invoke, e.g. nvk --prefix app my-fn"
-                      :coerce :string
-                      :alias  :p}]
+   [:ns-default      {:desc    "Default namespace for var resolution"
+                      :coerce  :symbol
+                      :alias   :nd
+                      :default 'invoker.cli}]
+   [:ns-aliases      {:desc    "Map of alias to namespace for var resolution"
+                      :coerce  :edn
+                      :alias   :na
+                      :default {}}]
    [:dialect         {:desc    "Clojure (clj) or Babashka (bb), defaults to clj if there's a deps.edn"
                       :coerce  :keyword
                       :alias   :d}]
@@ -245,16 +249,9 @@
 ;; TODO: now
 ;; - use claude for some of the nows, otherwise I won't move forward quickly
 ;; - https://corfield.org/blog/2025/08/08/deps/
-;;   - ns-default and ns-aliases are really interesting
-;;     - nvk could use it, then the default commands would just be fns in the ns-default
-;;     - but there's a weird dichotomy here with the fns that take cmds and the ones that take args
-;;     - maybe nvk should be a little less cli-freeform, and a little more sym-oriented
-;;     - having all the helpers within help/doc etc would be neat
-;;       - http/repl/test in the ns-default
-;;       - help/dir help/doc etc
-;;       - dev/reload dev/devtools ?
 ;;   - basis or something might give me the built deps for the project?
 ;;     - would be useful for computed paths
+;;     - https://clojure.org/reference/deps_edn#basis
 ;;   - does nvk doc ns list all the docsctrings in the ns? I think the deps version does
 ;;   - the last part (project help) shows help for the project fns
 ;;     - does it load everything? I'm loading everything right now, would be nice not to
@@ -266,6 +263,9 @@
 ;; - --load-all opt, use it to load all files for the alias cmds
 ;; - nvk test fail should put in error list of failed tests
 ;; - just nvk should tell you about the repl/http server being up or not
+;; - https://clojure.org/reference/deps_edn recommends using aliases for config
+;;   - so :invoker alias instead of nvk.edn?
+;;   - what about bb?
 ;; - stop ammending commit when now is done
 
 ;; TODO: maybe
