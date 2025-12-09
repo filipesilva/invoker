@@ -31,19 +31,13 @@
        (handle [sig] #_(prn :sigint)))))
 
 (defn server
-  [{:keys [repl-port devtools setup ignore-sigint]}]
+  [{:keys [repl-port ignore-sigint]}]
   (when ignore-sigint
     (ignore-sigint!))
   (let [server'   (if utils/bb?
                     'babashka.nrepl.server/start-server!
                     'nrepl.server/start-server)
         port-file (io/file ".nrepl-port")]
-    (when devtools
-      (println "Calling devtools" devtools)
-      ((requiring-resolve devtools)))
-    (when setup
-      (println "Calling setup" setup)
-      ((requiring-resolve setup)))
     ((requiring-resolve server') {:port repl-port, :quiet true})
     (spit port-file (str repl-port))
     (.deleteOnExit port-file)

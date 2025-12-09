@@ -286,12 +286,11 @@
   {;; Metadata is workaround for how bb -x doesn't parse edn args like clj -X.
    :org.babashka/cli {:coerce {:sym :symbol, :cmd :edn}}}
   [{:keys [sym cmd]}]
-  (let [{:keys [dev-tools setup]} (:opts cmd)]
-    (when dev-tools ((requiring-resolve dev-tools)))
+  (let [{:keys [devtools setup]} (:opts cmd)]
+    (when devtools ((requiring-resolve devtools)))
     (when setup ((requiring-resolve setup))))
   ((requiring-resolve sym) cmd))
 
-;; TODO: this is also called by the repl server and needs to handle that
 (defn exec-args [dialect sym cmd]
   ;; TODO: if no deps or bb, add paths ["src" "resources" "test"]
   (let [deps {:extra-deps {'io.github.filipesilva/invoker {:local/root invoker-global-dir}}}]

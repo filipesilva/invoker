@@ -37,11 +37,11 @@
    [:aliases         {:desc   "Aliases to call Clojure with, does nothing with Babashka"
                       :coerce :string
                       :alias  :a}]
-   [:devtools        {:desc    "Developer tools fn to call on nREPL server creation"
+   [:devtools        {:desc    "Developer tools fn to call on process setup"
                       :coerce  :symbol
                       :alias   :dt
                       :default 'invoker.utils/dev-tools}]
-   [:setup           {:desc    "Setup fn to call on nREPL server creation"
+   [:setup           {:desc    "Setup fn to call on process setup"
                       :coerce  :symbol
                       :alias   :s}]
    [:http-port       {:desc    "Port for HTTP server"
@@ -215,7 +215,6 @@
 
 ;; TODO: now
 ;; - use claude for some of the nows, otherwise I won't move forward quickly
-;; - no devtools when calling fns that don't start repl server? that's wrong right?
 ;; - just nvk should tell you about the repl/http server being up or not
 ;; - make add-lib actually save the lib in deps?
 ;; - default unhandled exception handler?
