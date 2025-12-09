@@ -214,10 +214,8 @@
         (throw e)))))
 
 ;; TODO: now
-;; - use claude for some of the nows, otherwise I won't move forward quickly
 ;; - just nvk should tell you about the repl/http server being up or not
 ;; - make add-lib actually save the lib in deps?
-;; - default unhandled exception handler?
 
 ;; TODO: maybe
 ;; - http content via suffix! .html .edn .json

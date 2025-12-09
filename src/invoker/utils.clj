@@ -229,15 +229,15 @@
 (defn ex-str [e]
   (with-out-str (-> e Throwable->map (select-keys [:cause :data]) pprint/pprint)))
 
-(defn print-err-exit [exit? exit-code ex-or-str]
+(defn print-err-exit [exit exit-code ex-or-str]
   (binding [*out* *err*]
     (print (if (ex-data ex-or-str)
              (ex-str ex-or-str)
              ex-or-str))
     (flush))
-  (if exit?
-    (System/exit exit-code)
-    {:exit-code exit-code}))
+  (if (false? exit)
+    {:exit-code exit-code}
+    (System/exit exit-code)))
 
 (defn port-or-random [port]
   (if (= 0 port)
