@@ -9,6 +9,8 @@
    [clojure.repl]
    [clojure.repl.deps]
    [clojure.tools.namespace.find :as ns-find]
+   [invoker.http :as http]
+   [invoker.repl :as repl]
    [invoker.utils :as utils]))
 
 (def ^:dynamic *cmd* nil)
@@ -34,7 +36,22 @@
           (utils/print-err-exit exit 2 e)
           (throw e))))))
 
-(declare reload)
+
+(defn http
+  "Start an HTTP server, using global cli command options. Will start nREPL server is none exists."
+  []
+  (http/server (:opts *cmd*)))
+
+(defn repl
+  "Start a nREPL client, using global cli command options. Will start nREPL server is none exists.
+  Note: this client always runs as a clj process because it doesn't support bb."
+  []
+  (repl/client (:opts *cmd*)))
+
+(defn reload
+  "Reload changed namespaces, or all namespaces if all is true."
+  [& {:keys [all]}]
+  (clj-reload/reload (when all {:only :all})))
 
 (defn test
   "Run tests for symbols, or all tests in the test folder if no symbols are passed.
@@ -46,11 +63,6 @@
         {:as summary, :keys [fail error]} (apply clojure+.test/run syms)]
     (when (pos-int? (+ fail error))
       (throw (ex-info "Tests failed" summary)))))
-
-(defn reload
-  "Reload changed namespaces, or all namespaces if all is true."
-  [& {:keys [all]}]
-  (clj-reload/reload (when all {:only :all})))
 
 (defn dir
   "Prints a sorted directory of public vars in a namespace, or ns-default."

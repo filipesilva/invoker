@@ -10,7 +10,6 @@
    [clojure.string :as str]
    [invoker.utils :as utils]))
 
-;; TODO: most of these really
 (def base-spec
   [[:help            {:desc   "Show general usage help"
                       :coerce :boolean}]
@@ -38,53 +37,37 @@
    [:aliases         {:desc   "Aliases to call Clojure with, does nothing with Babashka"
                       :coerce :string
                       :alias  :a}]
-   [:devtools        {:desc    "Developer tools fn to call on process creation"
+   ;; TODO
+   [:devtools        {:desc    "Developer tools fn to call on REPL server creation"
                       :coerce  :symbol
                       :alias   :dt
                       :default 'invoker.utils/dev-tools}]
-   [:setup           {:desc    "Setup fn to call on process creation"
+   ;; TODO
+   [:setup           {:desc    "Setup fn to call on REPL server creation"
                       :coerce  :symbol
                       :alias   :s}]
-   ;; TODO
    [:http-port       {:desc    "Port for HTTP server"
                       :coerce  :int
                       :alias   :hp
                       :default 80}]
-   ;; TODO
-   [:http-public     {:desc    "HTTP static resources path, e.g. resources/public if you add \"resources\" to deps paths"
-                      :coerce  :string
-                      :alias   :hu
-                      :default "public"}]
-   ;; TODO
-   [:http-middleware {:desc    "Ring middleware fn for HTTP server"
-                      :coerce  :symbol
-                      :alias   :hm
-                      :default 'invoker.http/middleware}]
-   ;; TODO
    [:http-handler    {:desc    "Ring handler fn for HTTP server"
                       :coerce  :symbol
                       :alias   :hh
-                      :default 'invoker.http/invoke}]
-   ;; TODO
-   [:repl-port       {:desc    "Port for nREPL server"
+                      :default 'invoker.http/handler}]
+   [:repl-port       {:desc    "Port for nREPL server creation"
                       :coerce  :int
                       :alias   :rp
                       :default 2525}]
-   ;; TODO
    [:repl-connect    {:desc    "nREPL server address to connect on, defaults to content of .nrepl-port file if present and port is taken"
                       :coerce  :string
                       :alias   :rc}]
-   ;; TODO
-   [:repl-server     {:desc   "Start nREPL server, defaults to true on repl and http main commands, false on cli"
-                      :coerce :boolean
-                      :alias  :rs}]
    [:content-type    {:desc    "MIME type for body (last arg or piped input) on CLI content negotiation"
                       :coerce  :string
                       :alias   :ct}]
    [:accept          {:desc    "MIME types accepted on CLI content negotiation, use with :invoker/render metadata"
                       :coerce  :string
                       :alias   :ac
-                      :default "text/plain,application/edn"}]
+                      :default "application/edn"}]
    [:parse           {:desc    "Map of MIME type regex to edn parsing fn"
                       :coerce  :symbol
                       :default 'invoker.utils/parse}]
@@ -162,7 +145,9 @@
    [:blue "  nvk exit 1"] "                 Exit the process with exit-code or 0\n\n"
 
    [:purple "Options"] ", custom defaults can be set in " [:purple "nvk.edn"] ":\n"
-   (cli/format-opts {:spec (into {} spec), :order [:help :help-options :version :config :prefix :http-port :repl-port]})))
+   (cli/format-opts {:spec (into {} spec), :order [:help :help-options :version :config
+                                                   :http-port :repl-port :repl-connect
+                                                   :ns-default :ns-aliases]})))
 
 (defn help-options [spec]
   (bling/print-bling
@@ -174,7 +159,7 @@
     "{:http-port 8080
  :repl-port 6060}"]))
 
-(defn no-command [spec {:as cmd, :keys [opts args]}]
+(defn command [spec {:as cmd, :keys [opts args]}]
   (cond
     (:help-options opts)
     (help-options spec)
@@ -185,15 +170,12 @@
     (or (empty? args) (:help opts))
     (help spec)
 
+    (and (= "repl" (first args))
+         (= 'invoker.cli (:ns-default opts)))
+    (utils/exec :clj 'invoker.cli/invoke cmd)
+
     :else
     (utils/connect-or-exec 'invoker.cli/invoke cmd)))
-
-(defn commands [spec]
-  [;; main commands
-   {:cmds ["http"]     :fn (partial utils/connect-or-exec 'invoker.http/server)}
-   {:cmds ["repl"]     :fn (partial utils/exec :clj 'invoker.repl/run)}
-   ;; help, version, and cli invoke
-   {:cmds []           :fn (partial no-command spec) :spec spec}])
 
 (defn update-default [defaults [k m]]
   (if-some [default (k defaults)]
@@ -219,12 +201,15 @@
 (defn -main
   [& args]
   (try
-    (let [piped? (and (nil? (System/console))
-                      (pos? (.available System/in)))
-          args'  (if piped?
-                   (concat args [(slurp *in*)])
-                   args)]
-      (cli/dispatch (commands (spec-with-defaults base-spec args')) args'))
+    (let [piped?   (and (nil? (System/console))
+                        (pos? (.available System/in)))
+          args'    (if piped?
+                     (concat args [(slurp *in*)])
+                     args)
+          spec     (spec-with-defaults base-spec args')
+          ;; use dispatch commands to consume spec opts separately from symbol args
+          commands [{:cmds [] :fn (partial command spec) :spec spec}]]
+      (cli/dispatch commands args'))
     (catch ^:sci/error Exception e
       (if (utils/ex-info-msgs (ex-message e))
         (utils/print-err-exit true 2 e)
@@ -233,6 +218,7 @@
 ;; TODO: now
 ;; - use claude for some of the nows, otherwise I won't move forward quickly
 ;; - use help from sym metadata? or list docstring from ns-default?
+;; - `nvk --help reload` should be same as nvk doc invoker.cli/reload
 ;; - nvk reload without repl fails, need to exit with a warning no repl is up
 ;; - default 0 for random nrepl port
 ;; - just nvk should tell you about the repl/http server being up or not
@@ -240,10 +226,9 @@
 ;;   - so :invoker alias instead of nvk.edn?
 ;;   - what about bb?
 ;; - make add-lib actually save the lib in deps?
-;; - stop ammending commit when now is done
+;; - default unhandled exception handler?
 
 ;; TODO: maybe
-;; - --prefix or --scope or --root-ns?
 ;; - http content via suffix! .html .edn .json
 ;; - http redirect
 ;;   - having a format fn that lets you customize responses for return format doesn't seem so bad now
@@ -346,6 +331,12 @@
 ;; - consider some tui lib
 ;;   - node https://github.com/vadimdemedes/ink
 ;;   - python https://github.com/Textualize/rich
+;; - would be nice to have the http/repl options really on the fn, but still be easy to set defaults in config
+;;   - so that you can just do nvk http and it just works
+;;   - right now this happens via nvk flags, but that means those aren't options proper
+;; - fn that takes symbol, and returns url for symbol, to use in htmx url generation
+;; - would be really nice if nvk repl worked like the others
+;;   - it's specialcased to always launch a clj exec
 
 ;; TODO: not now
 ;; - move this stuff to a roadmap or readme?

@@ -53,19 +53,14 @@
 (defn handler []
   (reduce #(%2 %1) invoke (middleware)))
 
-(defn server [cmd]
-  (let [http-port 80
-        repl-port 2525
-        start-repl? true]
+(defn server [{:keys [http-port http-handler repl-connect repl-port]}]
+  (let [http-handler (requiring-resolve http-handler)]
     (utils/ensure-http-port-not-taken http-port)
-    (when start-repl?
+    (when (nil? repl-connect)
       (utils/ensure-repl-port-not-taken repl-port)
-      (future (repl/server cmd)))
-    (httpkit.server/run-server (handler) {:port http-port})
+      (future (repl/server {:repl-port repl-port})))
+    (httpkit.server/run-server (http-handler) {:port http-port})
     (utils/wait-for-port http-port)
     (println (str "Started HTTP server at http://localhost" (when-not (= http-port 80) http-port)))
     @(promise)))
 
-;; TODO
-;; use to make urls to put in htmx, elsewhere
-(defn url-for [sym & args])

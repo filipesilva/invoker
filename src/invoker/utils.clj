@@ -323,4 +323,4 @@
     (connect sym cmd)
     (exec sym cmd)))
 
-;; TODO: ensure cmd already has config file loaded and merged
+(def bb? (System/getProperty "babashka.version"))
