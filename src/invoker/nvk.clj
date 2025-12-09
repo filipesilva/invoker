@@ -51,7 +51,6 @@
                       :coerce  :edn
                       :alias   :na
                       :default {}}]
-   
    [:http-port       {:desc    "Port for HTTP server"
                       :coerce  :int
                       :alias   :hp
@@ -67,11 +66,9 @@
    [:repl-connect    {:desc   "nREPL server address to connect on, defaults to content of .nrepl-port file if present and port is taken"
                       :coerce :string
                       :alias  :rc}]
-   ;; TODO
    [:aliases         {:desc   "Aliases to call Clojure with, does nothing with Babashka"
                       :coerce :string
                       :alias  :a}]
-
    [:ex-trace        {:desc    "Include stack trace on exception"
                       :coerce  :boolean
                       :alias   :et
@@ -131,13 +128,13 @@
    [:blue "  nvk clojuredocs q"] "          Search ClojureDocs for q\n"
    [:blue "  nvk exit 1"] "                 Exit the process with exit-code or 0\n\n"
 
-   [:purple "Options"] ", custom defaults can be set in " [:purple "nvk.edn"] ":\n"
+   [:purple "Options"] ":\n"
    (cli/format-opts {:spec spec})
 
-   "\n\nExample defaults in " [:purple "nvk.edn"] ":\n"
+   "\n\nYou can set custom defaults for options in " [:purple "nvk.edn"] ":\n"
    [:gray
     "{:http-port 8080
- :repl-port 6060}"]))
+ :aliases   \":dev\"}"]))
 
 (defn command [spec {:as cmd, :keys [opts args]}]
   (cond
