@@ -51,7 +51,9 @@
 (defn reload
   "Reload changed namespaces, or all namespaces if all is true."
   [& {:keys [all]}]
-  (clj-reload/reload (when all {:only :all})))
+  (if (-> *cmd* :opts :connect)
+    (clj-reload/reload (when all {:only :all}))
+    (throw (ex-info "No nREPL process to connect to" *cmd*))))
 
 (defn test
   "Run tests for symbols, or all tests in the test folder if no symbols are passed.
