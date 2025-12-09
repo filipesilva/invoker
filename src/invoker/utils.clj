@@ -292,8 +292,8 @@
   ((requiring-resolve sym) cmd))
 
 (defn exec-args [dialect sym cmd]
-  ;; TODO: if no deps or bb, add paths ["src" "resources" "test"]
-  (let [deps {:extra-deps {'io.github.filipesilva/invoker {:local/root invoker-global-dir}}}]
+  (let [deps {:extra-paths ["src" "resources" "test"]
+              :extra-deps  {'io.github.filipesilva/invoker {:local/root invoker-global-dir}}}]
     (case dialect
       :clj ["clojure" "-Sdeps" deps "-X" 'invoker.utils/process-setup :sym sym, :cmd cmd]
       :bb  ["bb"      "-Sdeps" deps "-x" 'invoker.utils/process-setup :sym sym, :cmd cmd])))
