@@ -1,17 +1,20 @@
 (ns invoker.cli
   (:refer-clojure :exclude [test])
   (:require
+   [babashka.fs :as fs]
    [babashka.process :as process]
    [clj-reload.core :as clj-reload]
    [clojure+.test :as clojure+.test]
    [clojure.edn :as edn]
+   [clojure.java.basis :as basis]
    [clojure.java.io :as io]
    [clojure.repl]
    [clojure.repl.deps]
    [clojure.tools.namespace.find :as ns-find]
    [invoker.http :as http]
    [invoker.repl :as repl]
-   [invoker.utils :as utils]))
+   [invoker.utils :as utils]
+   [rewrite-clj.zip :as z]))
 
 (def ^:dynamic *cmd* nil)
 
@@ -114,9 +117,36 @@
 (defn add-lib
   "Given a lib that is not yet on the repl classpath, make it available by
   downloading the library if necessary and adding it to the classloader.
+  Also writes the lib to deps.edn, preserving formatting and comments.
   Libs already on the classpath are not updated."
   [lib]
-  (clojure.repl.deps/add-lib (symbol lib)))
+  (let [lib       (symbol lib)
+        _         (clojure.repl.deps/add-lib lib)
+        coord     (-> (basis/current-basis)
+                      :libs
+                      (get lib)
+                      (select-keys [:mvn/version]))
+        deps-file (cond
+                    (fs/exists? "deps.edn") "deps.edn"
+                    (fs/exists? "bb.edn")   "bb.edn"
+                    :else                   (do
+                                              (spit "deps.edn" "{}")
+                                              "deps.edn"))
+        file-zloc (z/of-file deps-file {:track-position? true})
+        file-zloc (if (z/get file-zloc :deps)
+                    file-zloc
+                    (z/assoc file-zloc :deps {}))
+        deps-zloc (z/get file-zloc :deps)
+        first-key (z/down deps-zloc)
+        indent    (if first-key (-> first-key z/position second dec) 1)
+        zloc      (-> deps-zloc
+                      (z/assoc lib coord)
+                      (z/find-value z/next lib)
+                      (cond-> first-key (-> (z/insert-newline-left)
+                                            (z/insert-space-left indent)))
+                      z/up)]
+    (spit deps-file (z/root-string zloc))
+    lib))
 
 (defn sync-deps
   "Calls add-libs with any libs present in deps.edn but not yet present on the classpath."

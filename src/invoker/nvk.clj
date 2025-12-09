@@ -199,8 +199,8 @@
         (throw e)))))
 
 ;; TODO: now
-;; - make add-lib actually save the lib in deps?
-;; - test the example
+;; - review all the invoker.cli docstrings vs usage help
+;; - test the example via e2e, including deps adding
 
 ;; TODO: maybe
 ;; - http content via suffix! .html .edn .json

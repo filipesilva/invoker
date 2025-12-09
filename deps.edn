@@ -15,7 +15,8 @@
            org.babashka/cli                 {:mvn/version "0.8.66"}
            org.clojure/tools.namespace      {:mvn/version "1.3.0"}
            ring/ring-defaults               {:mvn/version "0.6.0"}
-           dev.weavejester/medley           {:mvn/version "1.9.0"}}
+           dev.weavejester/medley           {:mvn/version "1.9.0"}
+           rewrite-clj/rewrite-clj          {:mvn/version "1.1.47"}}
  :aliases {:invoker
            {:deps      {io.github.filipesilva/invoker {:git/tag "v1.0.0" :git/sha "abc123"}}
             :main-opts ["-m" "invoker"]}}}
