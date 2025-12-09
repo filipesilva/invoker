@@ -250,6 +250,15 @@
     (spit f (str port))
     (.deleteOnExit f)))
 
+(defn read-port-file [filename]
+  (when (fs/exists? filename)
+    (parse-long (str/trim (slurp filename)))))
+
+(defn active-port [filename]
+  (when-let [port (read-port-file filename)]
+    (when (port-taken? port)
+      port)))
+
 (defn port-or-random [port]
   (if (= 0 port)
     (with-open [socket (java.net.ServerSocket. 0)]

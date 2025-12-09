@@ -7,7 +7,6 @@
    [bling.core :as bling]
    [bling.fonts.ansi-shadow :as ansi-shadow]
    [clojure.edn :as edn]
-   [clojure.string :as str]
    [invoker.utils :as utils]))
 
 (def base-spec
@@ -91,6 +90,9 @@
    "Commands will automatically connect to an existing nREPL if available,\n"
    "and repl/http create one if needed.\n\n"
 
+   "Servers: .nrepl-port " [:blue (or (utils/active-port ".nrepl-port") "(missing)")]
+   ", .http-port " [:blue (or (utils/active-port ".http-port") "(missing)")] "\n\n"
+
    "Given " [:gray "src/app.clj"] ":\n"
    [:gray
     "  (ns app)
@@ -167,10 +169,8 @@
                            (utils/print-err-exit true 2 (ex-info "Config path does not exist"
                                                                  {:config-path config-path})))
         dynamic-defaults {:dialect      (if (fs/exists? "deps.edn") :clj :bb)
-                          :repl-connect (when (fs/exists? ".nrepl-port")
-                                          (let [port (->> ".nrepl-port" slurp str/trim parse-double int)]
-                                            (when (utils/port-taken? port)
-                                              (str "localhost:" port))))}
+                          :repl-connect (when-let [port (utils/active-port ".nrepl-port")]
+                                          (str "localhost:" port))}
         config-defaults  (utils/catch-nil (-> config-path slurp edn/read-string))]
     (->> base-spec
          (mapv (partial update-default dynamic-defaults))
@@ -195,7 +195,6 @@
 
 ;; TODO: now
 ;; - figure out how to expose fn on http
-;; - just nvk should tell you about the repl/http server being up or not
 ;; - make add-lib actually save the lib in deps?
 
 ;; TODO: maybe
