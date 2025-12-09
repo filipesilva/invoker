@@ -200,7 +200,8 @@
     (is (= "[\"foo\" {:a 1}]\n" (cli {:args ["invoker.examples/argv" "foo" ":a" "1"]})))
     (is (= "[{:body \"{:a 1}\"}]\n" (cli {:args ["invoker.examples/argv" ":body" "{:a 1}"]})))
     (is (= "[{:a 1}]\n" (cli {:args ["invoker.examples/argv" "{:a 1}"], :opts {:content-type "application/edn"}})))
-    (is (= "hello world" (cli {:args ["invoker.examples/pre-render" "world"], :opts {:accept "text/plain"}}))))
+    (is (= "hello world" (cli {:args ["invoker.examples/pre-render" "world"], :opts {:accept "text/plain"}})))
+    (is (= "^{:bar 2} {:foo 1}\n" (cli {:args ["invoker.examples/return-meta"]}))))
   (let [cli           #(with-err-str (cli/invoke (assoc-in % [:opts :exit] false)))
         cli-exit-code #(:exit-code (ignore-err (cli/invoke (assoc-in % [:opts :exit] false))))]
     (is (= "{:cause \"Cannot resolve var\",\n :data\n {:var-and-args [\"foo\"], :ns-default nil, :ns-aliases nil, :status 404}}\n" (cli {:args ["foo"]})))

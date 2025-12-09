@@ -73,19 +73,9 @@
                       :coerce  :symbol
                       :default 'invoker.utils/render}]
    ;; TODO
-   [:print-meta      {:desc    "Print return metadata"
-                      :coerce  :boolean
-                      :alias   :pm
-                      :default false}]
-   ;; TODO
    [:ex-trace        {:desc    "Include stack trace on exception"
                       :coerce  :boolean
                       :alias   :et
-                      :default false}]
-   ;; TODO
-   [:verbose         {:desc    "Print extra debug logging"
-                      :coerce  :boolean
-                      :alias   :v
                       :default false}]])
 
 (defn help [spec]
@@ -216,6 +206,8 @@
 ;; TODO: now
 ;; - just nvk should tell you about the repl/http server being up or not
 ;; - make add-lib actually save the lib in deps?
+;; - review usage help
+;; - figure out how to expose fn on http
 
 ;; TODO: maybe
 ;; - http content via suffix! .html .edn .json

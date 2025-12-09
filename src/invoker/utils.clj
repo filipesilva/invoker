@@ -107,8 +107,9 @@
 
 (defn parse-raw-args [var raw-args]
   (let [{:keys [args opts]} (cli/parse-args raw-args (-> var meta :invoker/args))
+        opts' (with-meta opts nil)
         args' (mapv cli/auto-coerce args)]
-    [args' opts]))
+    [args' opts']))
 
 ;; common types, and all types
 ;; https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/MIME_types/Common_types
@@ -124,7 +125,7 @@
 (def render
   {:application/x-www-form-urlencoded codec/form-encode
    :application/json                  #(json/generate-string % {:pretty true})
-   :application/edn                   #(with-out-str (pprint/pprint %))
+   :application/edn                   #(with-out-str (binding [*print-meta* true] (pprint/pprint %)))
    :text/html                         #(str (hiccup/html %))
    :text/plain                        str})
 

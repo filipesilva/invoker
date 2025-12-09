@@ -32,3 +32,6 @@
 
 (defn exception []
   (/ 1 0))
+
+(defn return-meta []
+  (with-meta {:foo 1} {:bar 2}))
