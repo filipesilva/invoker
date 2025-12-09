@@ -19,11 +19,15 @@
 (declare reload)
 
 (defn invoke [cmd]
-  (let [{:keys [exit help]} (:opts cmd)]
+  (let [{:keys [exit help]} (:opts cmd)
+        syms (select-keys (:opts cmd) [:parse :render :devtools :setup :http-handler])]
     (try
+      (when-not (->> syms vals (remove nil?) (every? utils/val-or-sym))
+        (throw (ex-info "Cannot resolve all command symbols" syms)))
+
       (let [[var raw-args]       (utils/parse-var-and-args (:args cmd) (:opts cmd))
             [args opts]          (utils/parse-raw-args var raw-args)
-            cmd-opts             (select-keys (:opts cmd) [:content-type :accept :ex-trace])
+            cmd-opts             (select-keys (:opts cmd) [:parse :render :content-type :accept :ex-trace])
             [args body]          (if (:content-type cmd-opts)
                                    [(butlast args) (last args)]
                                    [args])]

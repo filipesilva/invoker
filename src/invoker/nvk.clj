@@ -38,7 +38,7 @@
    [:devtools        {:desc    "Developer tools fn to call on process setup"
                       :coerce  :symbol
                       :alias   :dt
-                      :default 'invoker.utils/dev-tools}]
+                      :default 'invoker.utils/devtools}]
    [:setup           {:desc   "Setup fn to call on process setup"
                       :coerce :symbol
                       :alias  :s}]
@@ -196,6 +196,7 @@
 ;; TODO: now
 ;; - figure out how to expose fn on http
 ;; - make add-lib actually save the lib in deps?
+;; - test the example
 
 ;; TODO: maybe
 ;; - http content via suffix! .html .edn .json

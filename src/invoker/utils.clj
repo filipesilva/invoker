@@ -19,6 +19,7 @@
 (def ex-info-msgs
   #{"Cannot resolve var"
     "Not enough args for var"
+    "Cannot resolve all command symbols"
     "Cannot parse body"
     "Cannot render return"
     "Cannot negotiate content-type mime-type"
@@ -40,7 +41,7 @@
   `(try ~expr
      (catch Exception _#)))
 
-(defn dev-tools []
+(defn devtools []
   (try-bool ((requiring-resolve 'clojure+.print/install!)))
   (try-bool ((requiring-resolve 'clojure+.error/install!)))
   (try-bool ((requiring-resolve 'clojure+.test/install!)))
@@ -48,7 +49,7 @@
   (try-bool ((requiring-resolve 'clj-reload.core/init) {})))
 
 (comment
-  (dev-tools)
+  (devtools)
   ,)
 
 (defn require-ns-or-sym
@@ -178,9 +179,14 @@
                              args-count))]
         (apply var-val (take arity args))))))
 
+(defn val-or-sym [x]
+  (if (symbol? x)
+    (catch-nil @(requiring-resolve x))
+    x))
+
 (defn invoke [& {:keys [var args body opts content-type accept ex-trace]}]
-  (let [parse               (merge parse (-> var meta :invoker/parse))
-        render              (merge render (-> var meta :invoker/render))
+  (let [parse               (merge (val-or-sym parse) (-> var meta :invoker/parse))
+        render              (merge (val-or-sym render) (-> var meta :invoker/render))
         pre-render          (merge {} (-> var meta :invoker/pre-render))
         body-content-type   (or (not content-type)
                                 (not body)

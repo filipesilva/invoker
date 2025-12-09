@@ -223,10 +223,12 @@
     (is (= "{:cause \"Cannot resolve var\",\n :data\n {:var-and-args [\"foo\"], :ns-default nil, :ns-aliases nil, :status 404}}\n" (cli {:args ["foo"]})))
     (is (= 2 (cli-exit-code {:args ["foo"]})))
     (is (= "{:cause \"Divide by zero\"}\n" (cli {:args ["invoker.examples/exception"]})))
-    (is (= 1 (cli-exit-code {:args ["invoker.examples/exception"]})))))
+    (is (= 1 (cli-exit-code {:args ["invoker.examples/exception"]})))
+    (is (re-find #"Cannot resolve all command symbols" (cli {:args ["invoker.examples/an-int"], :opts {:parse 'not.a/symbol}})))
+    (is (= 2 (cli-exit-code {:args ["invoker.examples/an-int"], :opts {:parse 'not.a/symbol}})))))
 
 (deftest http-test
-  (let [http (http/handler)
+  (let [http (http/handler {:parse #'invoker.utils/parse, :render #'invoker.utils/render})
         edn-resp (fn [b] {:status 200, :body b, :content-type "application/edn"})]
     (is (= (edn-resp  "1\n")
            (http {:uri "invoker/examples/an-int"})

@@ -12,7 +12,7 @@
 
 (defn req [] *req*)
 
-(defn invoke [{:as req, :keys [uri query-string headers]}]
+(defn invoke [opts {:as req, :keys [uri query-string headers]}]
   (try
     (let [var-and-args           (mapv codec/url-decode  (remove empty? (str/split uri #"/")))
           [var raw-args]         (utils/parse-var-and-args var-and-args)
@@ -20,16 +20,18 @@
                                    (mapcat (fn [[k v]] [(str ":" k) v]) (codec/form-decode query-string)))
           [args opts']           (utils/parse-raw-args var (into raw-args kv-args))
           body'                  (ruq/body-string req)
+          cmd-opts               (select-keys opts [:parse :render :ex-trace])
           {:keys [exception?
                   exception-str
                   return-str
                   content-type]} (binding [*req* req]
-                                   (utils/invoke {:var          var,
-                                                  :args         args
-                                                  :opts         opts'
-                                                  :body         body'
-                                                  :content-type (get headers "content-type")
-                                                  :accept       (get headers "accept")}))]
+                                   (utils/invoke (merge {:var          var,
+                                                         :args         args
+                                                         :opts         opts'
+                                                         :body         body'
+                                                         :content-type (get headers "content-type")
+                                                         :accept       (get headers "accept")}
+                                                        cmd-opts)))]
       (if exception?
         {:status       400
          :content-type content-type
@@ -50,8 +52,8 @@
 (defn middleware []
   [wrap-resource])
 
-(defn handler []
-  (reduce #(%2 %1) invoke (middleware)))
+(defn handler [opts]
+  (reduce #(%2 %1) (partial invoke opts) (middleware)))
 
 (defn server [{:as opts, :keys [http-port http-handler repl-connect]}]
   (let [http-handler (requiring-resolve http-handler)]
@@ -61,7 +63,7 @@
         (utils/ensure-repl-port-not-taken port)
         (future (repl/server (assoc opts :repl-port port)))
         (utils/wait-for-port port)))
-    (httpkit.server/run-server (http-handler) {:port http-port})
+    (httpkit.server/run-server (http-handler opts) {:port http-port})
     (utils/wait-for-port http-port)
     (utils/write-port-file ".http-port" http-port)
     (println (str "Started HTTP server at http://localhost" (when-not (= http-port 80) http-port)))
