@@ -15,27 +15,30 @@
 
 (def ^:dynamic *cmd* nil)
 
+(declare doc)
+(declare reload)
+
 (defn invoke [cmd]
-  (let [{:keys [exit]} (:opts cmd)]
+  (let [{:keys [exit help]} (:opts cmd)]
     (try
       (let [[var raw-args]       (utils/parse-var-and-args (:args cmd) (:opts cmd))
             [args opts]          (utils/parse-raw-args var raw-args)
             cmd-opts             (select-keys (:opts cmd) [:content-type :accept :ex-trace])
             [args body]          (if (:content-type cmd-opts)
                                    [(butlast args) (last args)]
-                                   [args])
-            {:keys [exception?
-                    exception-str
-                    return-str]} (binding [*cmd* cmd]
-                                   (utils/invoke (merge {:var var, :args args, :body body :opts opts} cmd-opts)))]
-        (if exception?
-          (utils/print-err-exit exit 1 exception-str)
-          (print return-str)))
+                                   [args])]
+        (if help
+          (doc (str (symbol var)))
+          (let [{:keys [exception? exception-str return-str]}
+                (binding [*cmd* cmd]
+                  (utils/invoke (merge {:var var, :args args, :body body :opts opts} cmd-opts)))]
+            (if exception?
+              (utils/print-err-exit exit 1 exception-str)
+              (print return-str)))))
       (catch ^:sci/error Exception e
         (if (utils/ex-info-msgs (ex-message e))
           (utils/print-err-exit exit 2 e)
           (throw e))))))
-
 
 (defn http
   "Start an HTTP server, using global cli command options. Will start nREPL server is none exists."
@@ -48,13 +51,6 @@
   []
   (repl/client (:opts *cmd*)))
 
-(defn reload
-  "Reload changed namespaces, or all namespaces if all is true."
-  [& {:keys [all]}]
-  (if (-> *cmd* :opts :connect)
-    (clj-reload/reload (when all {:only :all}))
-    (throw (ex-info "No nREPL process to connect to" *cmd*))))
-
 (defn test
   "Run tests for symbols, or all tests in the test folder if no symbols are passed.
   Reloads changed namespaces before running tests."
@@ -65,6 +61,13 @@
         {:as summary, :keys [fail error]} (apply clojure+.test/run syms)]
     (when (pos-int? (+ fail error))
       (throw (ex-info "Tests failed" summary)))))
+
+(defn reload
+  "Reload changed namespaces, or all namespaces if all is true."
+  [& {:keys [all]}]
+  (if (-> *cmd* :opts :connect)
+    (clj-reload/reload (when all {:only :all}))
+    (throw (ex-info "No nREPL process to connect to" *cmd*))))
 
 (defn dir
   "Prints a sorted directory of public vars in a namespace, or ns-default."

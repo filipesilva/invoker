@@ -11,7 +11,7 @@
    [invoker.utils :as utils]))
 
 (def base-spec
-  [[:help            {:desc   "Show general usage help"
+  [[:help            {:desc   "Show doc for var"
                       :coerce :boolean}]
    [:help-options    {:desc   "Show detailed options help"
                       :coerce :boolean}]
@@ -165,7 +165,7 @@
     (:version opts)
     (println "version!")
 
-    (or (empty? args) (:help opts))
+    (empty? args)
     (help spec)
 
     (and (= "repl" (first args))
@@ -215,8 +215,7 @@
 
 ;; TODO: now
 ;; - use claude for some of the nows, otherwise I won't move forward quickly
-;; - use help from sym metadata? or list docstring from ns-default?
-;; - `nvk --help reload` should be same as nvk doc invoker.cli/reload
+;; - no devtools when calling fns that don't start repl server? that's wrong right?
 ;; - just nvk should tell you about the repl/http server being up or not
 ;; - make add-lib actually save the lib in deps?
 ;; - default unhandled exception handler?
