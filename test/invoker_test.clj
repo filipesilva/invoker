@@ -20,6 +20,22 @@
     (utils/require-ns-or-sym 'also.not.a.namespace)
     (utils/require-ns-or-sym 'clojure.set/not-a-fn)))
 
+(deftest simple-symbol-str?-test
+  (are [s] (utils/simple-symbol-str? s)
+    "clojure.string"
+    "foo"
+    "my-fn!"
+    "fn+")
+
+  (are [s] (not (utils/simple-symbol-str? s))
+    "clojure.string/bar"
+    "foo/bar/baz"
+    "join bad"
+    "foo/bar{"
+    "ns/fn["
+    123
+    nil))
+
 (deftest parse-var-and-args-test
   (is (= [#'examples/a-fn []]
          (utils/parse-var-and-args ["invoker.examples/a-fn"])

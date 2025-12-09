@@ -75,6 +75,10 @@
   (try (requiring-resolve (apply-ns-alias (symbol var-str) ns-aliases))
        (catch Exception _)))
 
+(defn simple-symbol-str? [s]
+  ;; https://clojure.org/reference/reader#_symbols
+  (and (string? s) (not (re-find #"[^a-zA-Z0-9*+!\-_'?<>=.]" s))))
+
 (defn parse-var-and-args [var-and-args & {:keys [ns-default ns-aliases]}]
   (let [not-found (ex-info "Cannot resolve var" {:var-and-args var-and-args,
                                                  :ns-default ns-default
@@ -93,7 +97,8 @@
        :else
        (loop [[x & xs] var-and-args
               ns-str ""]
-         (when x
+         (when (and (simple-symbol-str? x)
+                    (simple-symbol-str? ns-str))
            (or
             ;; try ns-default first if set and no ns accumulated yet
             (when (and ns-default (= ns-str ""))

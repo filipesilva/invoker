@@ -194,9 +194,9 @@
         (throw e)))))
 
 ;; TODO: now
+;; - figure out how to expose fn on http
 ;; - just nvk should tell you about the repl/http server being up or not
 ;; - make add-lib actually save the lib in deps?
-;; - figure out how to expose fn on http
 
 ;; TODO: maybe
 ;; - http content via suffix! .html .edn .json
