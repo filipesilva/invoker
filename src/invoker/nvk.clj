@@ -37,13 +37,11 @@
    [:aliases         {:desc   "Aliases to call Clojure with, does nothing with Babashka"
                       :coerce :string
                       :alias  :a}]
-   ;; TODO
-   [:devtools        {:desc    "Developer tools fn to call on REPL server creation"
+   [:devtools        {:desc    "Developer tools fn to call on nREPL server creation"
                       :coerce  :symbol
                       :alias   :dt
                       :default 'invoker.utils/dev-tools}]
-   ;; TODO
-   [:setup           {:desc    "Setup fn to call on REPL server creation"
+   [:setup           {:desc    "Setup fn to call on nREPL server creation"
                       :coerce  :symbol
                       :alias   :s}]
    [:http-port       {:desc    "Port for HTTP server"

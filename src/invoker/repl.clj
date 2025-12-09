@@ -31,14 +31,20 @@
        (handle [sig] #_(prn :sigint)))))
 
 (defn server
-  [{:keys [repl-port ignore-sigint]}]
+  [{:keys [repl-port devtools setup ignore-sigint]}]
   (when ignore-sigint
     (ignore-sigint!))
-  (let [sym       (if utils/bb?
+  (let [server'   (if utils/bb?
                     'babashka.nrepl.server/start-server!
                     'nrepl.server/start-server)
         port-file (io/file ".nrepl-port")]
-    ((requiring-resolve sym) {:port repl-port, :quiet true})
+    (when devtools
+      (println "Calling devtools" devtools)
+      ((requiring-resolve devtools)))
+    (when setup
+      (println "Calling setup" setup)
+      ((requiring-resolve setup)))
+    ((requiring-resolve server') {:port repl-port, :quiet true})
     (spit port-file (str repl-port))
     (.deleteOnExit port-file)
     (println (str "Started nREPL server at localhost:" repl-port)))
@@ -51,7 +57,7 @@
     (utils/wait-for-port repl-port)
     process))
 
-(defn client [{:keys [repl-port repl-connect dialect]}]
+(defn client [{:as opts, :keys [repl-port repl-connect]}]
   (let [client'       (requiring-resolve 'rebel-readline.nrepl/connect)
         create-server (nil? repl-connect)
         [host port]   (if create-server
@@ -60,7 +66,7 @@
                           [host (int (parse-long port-str))]))]
     (when create-server
       (utils/ensure-repl-port-not-taken repl-port)
-      (server-process {:repl-port repl-port, :dialect dialect}))
+      (server-process opts))
     (println (str "Connecting to nREPL server at " host ":" port))
     (println "Quit REPL with ctrl+d, autocomplete with tab")
     (println "More help at https://github.com/bhauman/rebel-readline")
