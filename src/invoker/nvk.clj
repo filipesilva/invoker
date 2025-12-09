@@ -115,7 +115,7 @@
    [:blue "  nvk repl"] "                   Start nREPL server and invoke my-fn via code\n"
    [:gray "  (require 'app) (app/my-fn 1 2 :a 1)\n\n"]
 
-   [:blue "  nvk test"] "                   Run tests in test/**.clj\n\n"
+   [:blue "  nvk test"] "                   Run tests in test/**/*.clj\n\n"
 
    "Helper " [:magenta "commands"] ":\n"
    [:blue "  nvk reload"] "                 Reload changed namespaces\n"
