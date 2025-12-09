@@ -137,7 +137,8 @@
   "Search ClojureDocs for q."
   [q]
   (let [url (str "https://clojuredocs.org/search?q=" q)]
-    (process/shell "open" url)))
+    (process/shell "open" url)
+    url))
 
 (defn exit
   "Exit the process with exit-code or 0."
