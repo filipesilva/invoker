@@ -55,7 +55,8 @@
   "Run tests for symbols, or all tests in the test folder if no symbols are passed.
   Reloads changed namespaces before running tests."
   [& symbols]
-  (reload)
+  (when (-> *cmd* :opts :repl-connect)
+    (reload))
   (let [syms (map symbol symbols)
         _ (when (empty? syms) (run! require (ns-find/find-namespaces-in-dir (io/file "test"))))
         {:as summary, :keys [fail error]} (apply clojure+.test/run syms)]
@@ -65,7 +66,7 @@
 (defn reload
   "Reload changed namespaces, or all namespaces if all is true."
   [& {:keys [all]}]
-  (if (-> *cmd* :opts :connect)
+  (if (-> *cmd* :opts :repl-connect)
     (clj-reload/reload (when all {:only :all}))
     (throw (ex-info "No nREPL process to connect to" *cmd*))))
 
