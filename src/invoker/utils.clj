@@ -66,9 +66,6 @@
       (catch Exception _
         (throw ex)))))
 
-(defn all-ns-strs []
-  (->> (all-ns) (map (comp str ns-name)) set))
-
 (defn- apply-ns-alias [sym ns-aliases]
   (if-let [expanded (get ns-aliases (symbol (namespace sym)))]
     (symbol (str expanded) (name sym))
@@ -95,7 +92,6 @@
 
        :else
        (loop [[x & xs] var-and-args
-              possible-ns (into (all-ns-strs) (->> ns-aliases keys (map str)))
               ns-str ""]
          (when x
            (or
@@ -103,13 +99,10 @@
             (when (and ns-default (= ns-str ""))
               (when-let [var (resolve-var-str (str ns-default "/" x) ns-aliases)]
                 [var (vec xs)]))
-            (when (contains? possible-ns ns-str)
-              (when-let [var (resolve-var-str (str ns-str "/" x) ns-aliases)]
-                [var (vec xs)]))
-            (let [ns-str'      (if (seq ns-str) (str ns-str "." x) x)
-                  possible-ns' (into #{} (filter #(str/starts-with? % ns-str')) possible-ns)]
-              (when (seq possible-ns')
-                (recur xs possible-ns' ns-str')))))))
+            (when-let [var (resolve-var-str (str ns-str "/" x) ns-aliases)]
+              [var (vec xs)])
+            (let [ns-str'(if (seq ns-str) (str ns-str "." x) x)]
+              (recur xs ns-str'))))))
      (throw not-found))))
 
 (defn parse-raw-args [var raw-args]
