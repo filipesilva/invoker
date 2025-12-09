@@ -13,8 +13,6 @@
 (def base-spec
   [[:help            {:desc   "Show doc for var"
                       :coerce :boolean}]
-   [:help-options    {:desc   "Show detailed options help"
-                      :coerce :boolean}]
    ;; TODO: links to gh commit/release
    [:version         {:desc   "Show version"
                       :coerce :boolean}]
@@ -22,6 +20,29 @@
                       :coerce  :string
                       :alias   :c
                       :default "nvk.edn"}]
+   [:content-type    {:desc   "MIME type for body (last arg or piped input) on CLI content negotiation"
+                      :coerce :string
+                      :alias  :ct}]
+   [:accept          {:desc    "MIME types accepted on CLI content negotiation, use with :invoker/render metadata"
+                      :coerce  :string
+                      :alias   :ac
+                      :default "application/edn"}]
+   [:parse           {:desc    "Map of MIME type regex to edn parsing fn"
+                      :coerce  :symbol
+                      :default 'invoker.utils/parse}]
+   [:render          {:desc    "Map of MIME type regex to edn rendering fn"
+                      :coerce  :symbol
+                      :default 'invoker.utils/render}]
+   [:dialect         {:desc   "Clojure (clj) or Babashka (bb), defaults to clj if there's a deps.edn"
+                      :coerce :keyword
+                      :alias  :d}]
+   [:devtools        {:desc    "Developer tools fn to call on process setup"
+                      :coerce  :symbol
+                      :alias   :dt
+                      :default 'invoker.utils/dev-tools}]
+   [:setup           {:desc   "Setup fn to call on process setup"
+                      :coerce :symbol
+                      :alias  :s}]
    [:ns-default      {:desc    "Default namespace for var resolution"
                       :coerce  :symbol
                       :alias   :nd
@@ -30,20 +51,7 @@
                       :coerce  :edn
                       :alias   :na
                       :default {}}]
-   [:dialect         {:desc    "Clojure (clj) or Babashka (bb), defaults to clj if there's a deps.edn"
-                      :coerce  :keyword
-                      :alias   :d}]
-   ;; TODO
-   [:aliases         {:desc   "Aliases to call Clojure with, does nothing with Babashka"
-                      :coerce :string
-                      :alias  :a}]
-   [:devtools        {:desc    "Developer tools fn to call on process setup"
-                      :coerce  :symbol
-                      :alias   :dt
-                      :default 'invoker.utils/dev-tools}]
-   [:setup           {:desc    "Setup fn to call on process setup"
-                      :coerce  :symbol
-                      :alias   :s}]
+   
    [:http-port       {:desc    "Port for HTTP server"
                       :coerce  :int
                       :alias   :hp
@@ -56,23 +64,14 @@
                       :coerce  :int
                       :alias   :rp
                       :default 0}]
-   [:repl-connect    {:desc    "nREPL server address to connect on, defaults to content of .nrepl-port file if present and port is taken"
-                      :coerce  :string
-                      :alias   :rc}]
-   [:content-type    {:desc    "MIME type for body (last arg or piped input) on CLI content negotiation"
-                      :coerce  :string
-                      :alias   :ct}]
-   [:accept          {:desc    "MIME types accepted on CLI content negotiation, use with :invoker/render metadata"
-                      :coerce  :string
-                      :alias   :ac
-                      :default "application/edn"}]
-   [:parse           {:desc    "Map of MIME type regex to edn parsing fn"
-                      :coerce  :symbol
-                      :default 'invoker.utils/parse}]
-   [:render          {:desc    "Map of MIME type regex to edn rendering fn"
-                      :coerce  :symbol
-                      :default 'invoker.utils/render}]
+   [:repl-connect    {:desc   "nREPL server address to connect on, defaults to content of .nrepl-port file if present and port is taken"
+                      :coerce :string
+                      :alias  :rc}]
    ;; TODO
+   [:aliases         {:desc   "Aliases to call Clojure with, does nothing with Babashka"
+                      :coerce :string
+                      :alias  :a}]
+
    [:ex-trace        {:desc    "Include stack trace on exception"
                       :coerce  :boolean
                       :alias   :et
@@ -133,13 +132,6 @@
    [:blue "  nvk exit 1"] "                 Exit the process with exit-code or 0\n\n"
 
    [:purple "Options"] ", custom defaults can be set in " [:purple "nvk.edn"] ":\n"
-   (cli/format-opts {:spec (into {} spec), :order [:help :help-options :version :config
-                                                   :http-port :repl-port :repl-connect
-                                                   :ns-default :ns-aliases]})))
-
-(defn help-options [spec]
-  (bling/print-bling
-   [:purple "Options"] ", custom defaults can be set in " [:purple "nvk.edn"] ":\n"
    (cli/format-opts {:spec spec})
 
    "\n\nExample defaults in " [:purple "nvk.edn"] ":\n"
@@ -149,9 +141,6 @@
 
 (defn command [spec {:as cmd, :keys [opts args]}]
   (cond
-    (:help-options opts)
-    (help-options spec)
-
     (:version opts)
     (println "version!")
 
@@ -206,7 +195,6 @@
 ;; TODO: now
 ;; - just nvk should tell you about the repl/http server being up or not
 ;; - make add-lib actually save the lib in deps?
-;; - review usage help
 ;; - figure out how to expose fn on http
 
 ;; TODO: maybe
