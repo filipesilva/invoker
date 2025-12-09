@@ -87,6 +87,10 @@
 
    "Usage: " [:blue "nvk "] [:purple "<options>* "] [:magenta "<command> "] [:gray "<args>*"] "\n\n"
 
+   "Commands run in Clojure if there's a deps.edn, otherwise in Babashka.\n"
+   "Commands will automatically connect to an existing nREPL if available,\n"
+   "and repl/http create one if needed.\n\n"
+
    "Given " [:gray "src/app.clj"] ":\n"
    [:gray
     "  (ns app)
@@ -113,7 +117,7 @@
 
    [:blue "  nvk test"] "                   Run tests in test/**.clj\n\n"
 
-   "Helper " [:magenta "commands"] " connect to REPL server if available:\n"
+   "Helper " [:magenta "commands"] ":\n"
    [:blue "  nvk reload"] "                 Reload changed namespaces\n"
    [:blue "  nvk reload :all"] "            Reload all namespaces\n"
    [:blue "  nvk dir app"] "                List public vars in ns\n"
