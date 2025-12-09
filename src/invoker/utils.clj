@@ -245,6 +245,11 @@
     {:exit-code exit-code}
     (System/exit exit-code)))
 
+(defn write-port-file [filename port]
+  (let [f (io/file filename)]
+    (spit f (str port))
+    (.deleteOnExit f)))
+
 (defn port-or-random [port]
   (if (= 0 port)
     (with-open [socket (java.net.ServerSocket. 0)]

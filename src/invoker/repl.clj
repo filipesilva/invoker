@@ -1,9 +1,8 @@
 (ns invoker.repl
   (:require
    [babashka.process :as process]
-   [invoker.utils :as utils]
-   [clojure.java.io :as io]
-   [clojure.string :as str])
+   [clojure.string :as str]
+   [invoker.utils :as utils])
   (:import
    (sun.misc Signal SignalHandler)))
 
@@ -34,13 +33,11 @@
   [{:keys [repl-port ignore-sigint]}]
   (when ignore-sigint
     (ignore-sigint!))
-  (let [server'   (if utils/bb?
-                    'babashka.nrepl.server/start-server!
-                    'nrepl.server/start-server)
-        port-file (io/file ".nrepl-port")]
+  (let [server' (if utils/bb?
+                  'babashka.nrepl.server/start-server!
+                  'nrepl.server/start-server)]
     ((requiring-resolve server') {:port repl-port, :quiet true})
-    (spit port-file (str repl-port))
-    (.deleteOnExit port-file)
+    (utils/write-port-file ".nrepl-port" repl-port)
     (println (str "Started nREPL server at localhost:" repl-port)))
   @(promise))
 
