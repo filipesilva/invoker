@@ -63,10 +63,11 @@
         [host port]   (if create-server
                         ["localhost" repl-port]
                         (let [[host port-str] (str/split repl-connect #":")]
-                          [host (int (parse-long port-str))]))]
+                          [host (int (parse-long port-str))]))
+        port          (utils/port-or-random port)]
     (when create-server
-      (utils/ensure-repl-port-not-taken repl-port)
-      (server-process opts))
+      (utils/ensure-repl-port-not-taken port)
+      (server-process (assoc opts :repl-port port)))
     (println (str "Connecting to nREPL server at " host ":" port))
     (println "Quit REPL with ctrl+d, autocomplete with tab")
     (println "More help at https://github.com/bhauman/rebel-readline")

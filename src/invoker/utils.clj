@@ -246,6 +246,12 @@
     (System/exit exit-code)
     {:exit-code exit-code}))
 
+(defn port-or-random [port]
+  (if (= 0 port)
+    (with-open [socket (java.net.ServerSocket. 0)]
+      (.getLocalPort socket))
+    port))
+
 (defn ensure-http-port-not-taken [port]
   (when (port-taken? port)
     (print-err-exit true 2 (ex-info "HTTP server port already taken" {:port port}))))

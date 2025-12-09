@@ -53,13 +53,14 @@
 (defn handler []
   (reduce #(%2 %1) invoke (middleware)))
 
-(defn server [{:as opts, :keys [http-port http-handler repl-connect repl-port]}]
+(defn server [{:as opts, :keys [http-port http-handler repl-connect]}]
   (let [http-handler (requiring-resolve http-handler)]
     (utils/ensure-http-port-not-taken http-port)
     (when (nil? repl-connect)
-      (utils/ensure-repl-port-not-taken repl-port)
-      (future (repl/server opts))
-      (utils/wait-for-port repl-port))
+      (let [port (utils/port-or-random (:repl-port opts))]
+        (utils/ensure-repl-port-not-taken port)
+        (future (repl/server (assoc opts :repl-port port)))
+        (utils/wait-for-port port)))
     (httpkit.server/run-server (http-handler) {:port http-port})
     (utils/wait-for-port http-port)
     (println (str "Started HTTP server at http://localhost" (when-not (= http-port 80) http-port)))

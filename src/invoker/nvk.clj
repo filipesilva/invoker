@@ -52,10 +52,10 @@
                       :coerce  :symbol
                       :alias   :hh
                       :default 'invoker.http/handler}]
-   [:repl-port       {:desc    "Port for nREPL server creation"
+   [:repl-port       {:desc    "Port for nREPL server creation, 0 for random"
                       :coerce  :int
                       :alias   :rp
-                      :default 2525}]
+                      :default 0}]
    [:repl-connect    {:desc    "nREPL server address to connect on, defaults to content of .nrepl-port file if present and port is taken"
                       :coerce  :string
                       :alias   :rc}]
@@ -217,11 +217,7 @@
 ;; - use claude for some of the nows, otherwise I won't move forward quickly
 ;; - use help from sym metadata? or list docstring from ns-default?
 ;; - `nvk --help reload` should be same as nvk doc invoker.cli/reload
-;; - default 0 for random nrepl port
 ;; - just nvk should tell you about the repl/http server being up or not
-;; - https://clojure.org/reference/deps_edn recommends using aliases for config
-;;   - so :invoker alias instead of nvk.edn?
-;;   - what about bb?
 ;; - make add-lib actually save the lib in deps?
 ;; - default unhandled exception handler?
 
