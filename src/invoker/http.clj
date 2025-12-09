@@ -16,6 +16,8 @@
   (try
     (let [var-and-args           (mapv codec/url-decode  (remove empty? (str/split uri #"/")))
           [var raw-args]         (utils/parse-var-and-args var-and-args)
+          _                      (when-not (or (:http-all opts) (-> var meta :invoker/http))
+                                   (throw (ex-info "Var not exposed via HTTP" {:var var, :status 404})))
           kv-args                (when query-string
                                    (mapcat (fn [[k v]] [(str ":" k) v]) (codec/form-decode query-string)))
           [args opts']           (utils/parse-raw-args var (into raw-args kv-args))

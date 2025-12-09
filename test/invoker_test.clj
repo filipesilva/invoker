@@ -228,7 +228,7 @@
     (is (= 2 (cli-exit-code {:args ["invoker.examples/an-int"], :opts {:parse 'not.a/symbol}})))))
 
 (deftest http-test
-  (let [http (http/handler {:parse #'invoker.utils/parse, :render #'invoker.utils/render})
+  (let [http (http/handler {:http-all true, :parse #'invoker.utils/parse, :render #'invoker.utils/render})
         edn-resp (fn [b] {:status 200, :body b, :content-type "application/edn"})]
     (is (= (edn-resp  "1\n")
            (http {:uri "invoker/examples/an-int"})
@@ -264,4 +264,11 @@
     (is (= "{:cause \"Cannot render return\",\n :data {:return \")\", :content-type :application/throw}}\n"
            (with-err-str (http {:uri "invoker.examples/render", :body ")", :headers {"accept" "application/throw"}}))))
     (is (= {:status 400, :body "{:cause \"Divide by zero\"}\n", :content-type "application/edn"}
-           (http {:uri "invoker.examples/exception"})))))
+           (http {:uri "invoker.examples/exception"}))))
+
+  (testing ":invoker/http metadata check"
+    (let [handler (http/handler {:parse #'invoker.utils/parse, :render #'invoker.utils/render})]
+      (is (= {:status 404}
+             (handler {:uri "invoker.examples/an-int"})))
+      (is (= {:status 200, :body "42\n", :content-type "application/edn"}
+             (handler {:uri "invoker.examples/http"}))))))

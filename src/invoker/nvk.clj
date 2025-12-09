@@ -50,6 +50,10 @@
                       :coerce  :edn
                       :alias   :na
                       :default {}}]
+   [:http-all        {:desc    "Expose vars without :invoker/http in the HTTP server"
+                      :coerce  :int
+                      :alias   :ha
+                      :default false}]
    [:http-port       {:desc    "Port for HTTP server"
                       :coerce  :int
                       :alias   :hp
@@ -99,6 +103,7 @@
 
   (defn my-fn
     \"My doc\"
+    {:invoker/http true}
     [x y & {:as opts}]
     [x y opts])\n\n"]
 
@@ -194,7 +199,6 @@
         (throw e)))))
 
 ;; TODO: now
-;; - figure out how to expose fn on http
 ;; - make add-lib actually save the lib in deps?
 ;; - test the example
 

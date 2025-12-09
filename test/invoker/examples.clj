@@ -35,3 +35,8 @@
 
 (defn return-meta []
   (with-meta {:foo 1} {:bar 2}))
+
+(defn http
+  {:invoker/http true}
+  []
+  42)
