@@ -160,12 +160,15 @@
     ((requiring-resolve var))
     (throw (ex-info "No devtools symbol provided" *cmd*))))
 
-(defn setup
-  "Call setup var."
+(defn restart
+  "Call stop then start vars."
   []
-  (if-let [var (-> *cmd* :opts :setup)]
-    ((requiring-resolve var))
-    (throw (ex-info "No setup symbol provided" *cmd*))))
+  (let [stop (-> *cmd* :opts :stop)
+        start (-> *cmd* :opts :start)]
+    (when-not (or stop start)
+      (throw (ex-info "No start or stop symbols provided" *cmd*)))
+    ((requiring-resolve stop))
+    ((requiring-resolve start))))
 
 (defn clojuredocs
   "Search ClojureDocs for q."

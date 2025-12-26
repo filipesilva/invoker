@@ -35,13 +35,13 @@
    [:dialect         {:desc   "Clojure (clj) or Babashka (bb), defaults to clj if there's a deps.edn"
                       :coerce :keyword
                       :alias  :d}]
-   [:devtools        {:desc    "Developer tools fn to call on process setup"
+   [:devtools        {:desc    "Developer tools fn to call on process setup or nvk devtools"
                       :coerce  :symbol
-                      :alias   :dt
                       :default 'invoker.utils/devtools}]
-   [:setup           {:desc   "Setup fn to call on process setup"
-                      :coerce :symbol
-                      :alias  :s}]
+   [:start           {:desc    "Start fn to call on process setup or nvk restart"
+                      :coerce  :symbol}]
+   [:stop            {:desc    "Stop fn to call on process setup or nvk restart"
+                      :coerce  :symbol}]
    [:ns-default      {:desc    "Default namespace for var resolution"
                       :coerce  :symbol
                       :alias   :nd
@@ -134,7 +134,7 @@
    [:blue "  nvk add-lib babashka/fs"] "    Add dependency by name, creates deps.edn if needed\n"
    [:blue "  nvk sync-deps"] "              Sync dependencies to process\n"
    [:blue "  nvk devtools"] "               Call devtools var\n"
-   [:blue "  nvk setup"] "                  Call setup var\n"
+   [:blue "  nvk restart"] "                Call stop then start vars\n"
    [:blue "  nvk clojuredocs q"] "          Search ClojureDocs for q\n"
    [:blue "  nvk exit 1"] "                 Exit the process with exit-code or 0\n\n"
 

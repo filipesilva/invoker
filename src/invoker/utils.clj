@@ -313,9 +313,10 @@
   {;; Metadata is workaround for how bb -x doesn't parse edn args like clj -X.
    :org.babashka/cli {:coerce {:sym :symbol, :cmd :edn}}}
   [{:keys [sym cmd]}]
-  (let [{:keys [devtools setup]} (:opts cmd)]
+  (let [{:keys [devtools stop start]} (:opts cmd)]
     (when devtools ((requiring-resolve devtools)))
-    (when setup ((requiring-resolve setup))))
+    (when stop ((requiring-resolve stop)))
+    (when start ((requiring-resolve start))))
   ((requiring-resolve sym) cmd))
 
 (defn exec-args [dialect sym cmd]
