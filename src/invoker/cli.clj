@@ -167,8 +167,8 @@
         start (-> *cmd* :opts :start)]
     (when-not (or stop start)
       (throw (ex-info "No start or stop symbols provided" *cmd*)))
-    ((requiring-resolve stop))
-    ((requiring-resolve start))))
+    (when stop ((requiring-resolve stop)))
+    (when start ((requiring-resolve start)))))
 
 (defn clojuredocs
   "Search ClojureDocs for q."
