@@ -131,7 +131,7 @@
    [:blue "  nvk source app/my-fn"] "       Source code for var\n"
    [:blue "  nvk find-doc My doc"] "        Find docs containing text\n"
    [:blue "  nvk apropos my-f"] "           Find vars containing text\n"
-   [:blue "  nvk add-lib babashka/fs"] "    Add dependency by name, create deps.edn if needed\n"
+   [:blue "  nvk add-lib babashka/fs"] "    Add dependency by name, creates deps.edn if needed\n"
    [:blue "  nvk sync-deps"] "              Sync dependencies to process\n"
    [:blue "  nvk devtools"] "               Call devtools var\n"
    [:blue "  nvk setup"] "                  Call setup var\n"
