@@ -199,6 +199,8 @@
         (throw e)))))
 
 ;; TODO: now
+;; - is ns-alias edn map, or should it be a symbol?
+;; - can I dynamically add the invoker dep to an existing process if it's not there?
 ;; - review all the invoker.cli docstrings vs usage help
 ;; - test the example via e2e, including deps adding
 
@@ -206,6 +208,7 @@
 ;; - http content via suffix! .html .edn .json
 ;; - http redirect
 ;;   - having a format fn that lets you customize responses for return format doesn't seem so bad now
+;; - if I add dpm as a dependency on nvk, can I just call dpm/up as setup?
 ;; - should default http calls gives http or edn?
 ;;   - on zero config, what do I want to happen?
 ;;     - I want a user to be able to put down some hiccup and not think about it
@@ -311,6 +314,7 @@
 ;; - fn that takes symbol, and returns url for symbol, to use in htmx url generation
 ;; - would be really nice if nvk repl worked like the others
 ;;   - it's specialcased to always launch a clj exec
+;; - generative testing? can have claude make both specs and generative tests
 
 ;; TODO: not now
 ;; - move this stuff to a roadmap or readme?
@@ -345,6 +349,7 @@
 ;;     - setup config
 ;;   - not necessarily a datomic thing, most stateful apps need some sort of db
 ;;   - make multi-db easy, like multi tenants
+;;   - good for schema https://github.com/qtrfeast/conformity
 ;; - auth
 ;;   - --authorization sym, works on cli etc too?
 ;;     - goes on default middleware if present
@@ -381,8 +386,10 @@
 ;;     - cool scittle example https://clojurecivitas.github.io/scittle/presentations/browser_native_slides.html
 ;;       - just write some cljs that runs on browser
 ;;       - some kind of hiccup and reagent plugin
-;;       - https://babashka.org/scittle/
+;;       - https://babashka.org/scittle/ shows script tag usage
+;;         - the "source from file" usage is pretty tempting, or some equivalent with real cljs
 ;;     - cool squint reagent https://github.com/borkdude/reagami
+;;       - https://github.com/rads/squint-browser
 ;;     - https://clojurescript.org/news/2025-11-24-release#_refer_global_and_require_global
 ;;       - the bit about using only global deps require, with hypermedia stuff
 ;;       - so I could just compile cljs to use it as a global script
