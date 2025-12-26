@@ -47,9 +47,8 @@
                       :alias   :nd
                       :default 'invoker.cli}]
    [:ns-aliases      {:desc    "Map of alias to namespace for var resolution"
-                      :coerce  :edn
-                      :alias   :na
-                      :default {}}]
+                      :coerce  :symbol
+                      :alias   :na}]
    [:http-all        {:desc    "Expose vars without :invoker/http in the HTTP server"
                       :coerce  :int
                       :alias   :ha
@@ -199,7 +198,6 @@
         (throw e)))))
 
 ;; TODO: now
-;; - is ns-alias edn map, or should it be a symbol?
 ;; - can I dynamically add the invoker dep to an existing process if it's not there?
 ;; - review all the invoker.cli docstrings vs usage help
 ;; - test the example via e2e, including deps adding

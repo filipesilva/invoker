@@ -80,11 +80,17 @@
   ;; https://clojure.org/reference/reader#_symbols
   (and (string? s) (not (re-find #"[^a-zA-Z0-9*+!\-_'?<>=.]" s))))
 
+(defn val-or-sym [x]
+  (if (symbol? x)
+    (catch-nil @(requiring-resolve x))
+    x))
+
 (defn parse-var-and-args [var-and-args & {:keys [ns-default ns-aliases]}]
-  (let [not-found (ex-info "Cannot resolve var" {:var-and-args var-and-args,
-                                                 :ns-default ns-default
-                                                 :ns-aliases ns-aliases
-                                                 :status 404})]
+  (let [ns-aliases (val-or-sym ns-aliases)
+        not-found  (ex-info "Cannot resolve var" {:var-and-args var-and-args,
+                                                  :ns-default ns-default
+                                                  :ns-aliases ns-aliases
+                                                  :status 404})]
     (or
      (cond
        (empty? var-and-args)
@@ -178,11 +184,6 @@
                              ;; interface, go along with it
                              args-count))]
         (apply var-val (take arity args))))))
-
-(defn val-or-sym [x]
-  (if (symbol? x)
-    (catch-nil @(requiring-resolve x))
-    x))
 
 (defn invoke [& {:keys [var args body opts content-type accept ex-trace]}]
   (let [parse               (merge (val-or-sym parse) (-> var meta :invoker/parse))

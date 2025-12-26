@@ -36,6 +36,8 @@
     123
     nil))
 
+(def aliases '{ex invoker.examples})
+
 (deftest parse-var-and-args-test
   (is (= [#'examples/a-fn []]
          (utils/parse-var-and-args ["invoker.examples/a-fn"])
@@ -61,8 +63,8 @@
 
   (testing "ns-aliases"
     (is (= [#'examples/a-fn ["1"]]
-           (utils/parse-var-and-args ["ex/a-fn" "1"] :ns-aliases '{ex invoker.examples})
-           (utils/parse-var-and-args ["ex" "a-fn" "1"] :ns-aliases '{ex invoker.examples})))))
+           (utils/parse-var-and-args ["ex/a-fn" "1"] :ns-aliases 'invoker-test/aliases)
+           (utils/parse-var-and-args ["ex" "a-fn" "1"] :ns-aliases 'invoker-test/aliases)))))
 
 (deftest parse-raw-args-test
   (are [raw-args ret] (= ret (utils/parse-raw-args #'examples/a-fn raw-args))
@@ -120,19 +122,6 @@
         [{:a 1}]     [{:a 1}]
         [1 {:a 1}]   [1 {:a 1}]
         [1 2 {:a 1}] [1 2 {:a 1}]))))
-
-(defn submap?
-  ([expected actual]
-   (= expected (select-keys actual (keys expected))))
-  ([expected actual1 actual2]
-   (= expected
-      (select-keys actual1 (keys expected))
-      (select-keys actual2 (keys expected))))
-  ([expected actual1 actual2 actual3]
-   (= expected
-      (select-keys actual1 (keys expected))
-      (select-keys actual2 (keys expected))
-      (select-keys actual3 (keys expected)))))
 
 (deftest invoke-test
   (let [pprint      #(with-out-str (pprint/pprint %))
