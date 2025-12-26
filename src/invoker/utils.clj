@@ -319,9 +319,12 @@
     (when start ((requiring-resolve start))))
   ((requiring-resolve sym) cmd))
 
+(def invoker-coord
+  {:local/root invoker-global-dir})
+
 (defn exec-args [dialect sym cmd]
   (let [deps    {:extra-paths ["src" "resources" "test"]
-                 :extra-deps  {'io.github.filipesilva/invoker {:local/root invoker-global-dir}}}
+                 :extra-deps  {'io.github.filipesilva/invoker invoker-coord}}
         alias-X (str "-X" (-> cmd :opts :aliases))]
     (case dialect
       :clj ["clojure" "-Sdeps" deps alias-X 'invoker.utils/process-setup :sym sym, :cmd cmd]
@@ -335,14 +338,20 @@
 
 (defn connect
   [sym cmd]
-  (let [[host port] (-> cmd :opts :repl-connect (str/split #":"))
-        cmd         (update cmd :opts assoc :exit false)
-        expr        (format "((requiring-resolve '%s) '%s)" sym cmd)
-        ret         (try (nrepl-client/eval-expr {:port port :expr expr})
-                         (catch java.net.ConnectException _
-                           (throw (ex-info "Cannot connect to nREPL server" {:host host, :port port})))
-                         (catch java.io.EOFException _
-                             (throw (ex-info "nREPL server exited" {:host host, :port port}))))]
+  (let [[host port]    (-> cmd :opts :repl-connect (str/split #":"))
+        cmd            (update cmd :opts assoc :exit false)
+        ensure-invoker `(when-not (try
+                                    (requiring-resolve 'invoker.cli/invoke)
+                                    (catch Exception _# nil))
+                          ((requiring-resolve 'clojure.repl.deps/add-lib)
+                           'io.github.filipesilva/invoker
+                           ~invoker-coord))
+        expr           (format "%s ((requiring-resolve '%s) '%s)" ensure-invoker sym cmd)
+        ret            (try (nrepl-client/eval-expr {:port port :expr expr})
+                            (catch java.net.ConnectException _
+                              (throw (ex-info "Cannot connect to nREPL server" {:host host, :port port})))
+                            (catch java.io.EOFException _
+                              (throw (ex-info "nREPL server exited" {:host host, :port port}))))]
     (System/exit (-> ret :vals last edn/read-string :exit-code (or 0)))))
 
 (defn connect-or-exec [sym cmd]

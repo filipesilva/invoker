@@ -198,15 +198,15 @@
         (throw e)))))
 
 ;; TODO: now
-;; - can I dynamically add the invoker dep to an existing process if it's not there?
-;; - review all the invoker.cli docstrings vs usage help
 ;; - test the example via e2e, including deps adding
+;; - review all the invoker.cli docstrings vs usage help
 
 ;; TODO: maybe
 ;; - http content via suffix! .html .edn .json
 ;; - http redirect
 ;;   - having a format fn that lets you customize responses for return format doesn't seem so bad now
 ;; - if I add dpm as a dependency on nvk, can I just call dpm/up as setup?
+;; - invoker.utils/invoker-coord should use a public version if available
 ;; - should default http calls gives http or edn?
 ;;   - on zero config, what do I want to happen?
 ;;     - I want a user to be able to put down some hiccup and not think about it
