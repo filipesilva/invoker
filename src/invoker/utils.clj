@@ -319,12 +319,12 @@
   ((requiring-resolve sym) cmd))
 
 (defn exec-args [dialect sym cmd]
-  (let [deps {:extra-paths ["src" "resources" "test"]
-              :extra-deps  {'io.github.filipesilva/invoker {:local/root invoker-global-dir}}}
-        X    (str "-X" (-> cmd :opts :aliases))]
+  (let [deps    {:extra-paths ["src" "resources" "test"]
+                 :extra-deps  {'io.github.filipesilva/invoker {:local/root invoker-global-dir}}}
+        alias-X (str "-X" (-> cmd :opts :aliases))]
     (case dialect
-      :clj ["clojure" "-Sdeps" deps X    'invoker.utils/process-setup :sym sym, :cmd cmd]
-      :bb  ["bb"      "-Sdeps" deps "-x" 'invoker.utils/process-setup :sym sym, :cmd cmd])))
+      :clj ["clojure" "-Sdeps" deps alias-X 'invoker.utils/process-setup :sym sym, :cmd cmd]
+      :bb  ["bb"      "-Sdeps" deps "-x"    'invoker.utils/process-setup :sym sym, :cmd cmd])))
 
 (defn exec
   ([sym cmd]
