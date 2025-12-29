@@ -67,10 +67,11 @@
   (when (-> *cmd* :opts :repl-connect)
     (reload))
   (let [syms (map symbol symbols)
-        _ (when (empty? syms) (run! require (ns-find/find-namespaces-in-dir (io/file "test"))))
+        _ (run! require (ns-find/find-namespaces-in-dir (io/file "test")))
         {:as summary, :keys [fail error]} (apply clojure+.test/run syms)]
     (when (pos-int? (+ fail error))
-      (throw (ex-info "Tests failed" summary)))))
+      (throw (ex-info "Tests failed" summary)))
+    summary))
 
 (defn reload
   "Reload changed namespaces, or all namespaces if all is true."

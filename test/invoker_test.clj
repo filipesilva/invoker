@@ -1,6 +1,5 @@
 (ns invoker-test
   (:require
-   [babashka.fs :as fs]
    [babashka.process :as process]
    [cheshire.core :as json]
    [clojure.pprint :as pprint]
@@ -267,21 +266,40 @@
 
 ;; nvk invoker-test e2e
 (defn e2e []
-  (let [opts {:dir "examples", :out :string, :err :string}
-        assert-out #(str/includes? (:out (process/shell opts %1)) %2)]
-    (assert-out "nvk" "Zero config CLI, HTTP, and REPL interface for Clojure.")
-    (assert-out "nvk app my-fn 1 2 --a 3" "[1 2 {:a 3}]")
+  (let [opts {:dir "examples"}
+        cmd-out #(str/includes? (:out (process/sh opts %1)) %2)
+        cmd-err #(str/includes? (:err (process/sh opts %1)) %2)]
+
+    ;; help
+    (assert (cmd-out "nvk" "Zero config CLI, HTTP, and REPL interface for Clojure."))
+
+    ;; invoke
+    (assert (cmd-out "nvk app my-fn 1 2 --a 3" "[1 2 {:a 3}]"))
+    (assert (str/includes? (:out (process/sh (merge opts {:in "2"}) "nvk app my-fn 1")) "[1 2 nil]"))
+
+    ;; test
+    (assert (cmd-out "nvk test" "{:test 1, :pass 1, :fail 0, :error 0}"))
+    (assert (cmd-out "nvk test app-test" "{:test 1, :pass 1, :fail 0, :error 0}"))
+    (assert (cmd-out "nvk test app-test/my-fn-test" "{:test 1, :pass 1, :fail 0, :error 0}"))
+
+    ;; repl and http
+    (assert (cmd-err "nvk reload" "No nREPL process to connect to")) 
     (process/process opts "nvk http")
     (utils/wait-for-port 80)
-    (assert-out "curl localhost/app/my-fn/1/2?a=3" "[1 2 {:a 3}]")
-    (assert-out "nvk app my-fn 1 2 --a 3" "[1 2 {:a 3}]")
-    (try
-      (process/shell opts "nvk exit")
-      (assert false "did not exit with non-zero")
-      (catch Exception e
-        (let [{:keys [err exit]} (ex-data e)]
-          (assert (= 2 exit))
-          (assert (str/includes? err "nREPL server exited")))))))
+    (assert (cmd-out "curl localhost/app/my-fn/1/2?a=3" "[1 2 {:a 3}]"))
+    (assert (cmd-out "nvk app my-fn 1 2 --a 3" "[1 2 {:a 3}]"))
+
+    ;; helper commands
+    (assert (cmd-out "nvk reload" "{:unloaded [], :loaded []}"))
+    (assert (cmd-out "nvk dir app" "my-fn"))
+    (assert (cmd-out "nvk source app/my-fn" "[x y opts"))
+    (assert (cmd-out "nvk doc app/my-fn" "My doc"))
+    (assert (cmd-out "nvk find-doc My doc" "app/my-fn"))
+    (assert (cmd-out "nvk apropos my-fn" "app/my-fn"))
+
+    ;; exit process
+    (assert (cmd-err "nvk exit" "nREPL server exited"))
+    ))
 
 (comment
   (e2e)

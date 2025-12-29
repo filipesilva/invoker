@@ -124,14 +124,16 @@
    [:blue "  nvk repl"] "                   Start nREPL server and invoke my-fn via code\n"
    [:gray "  (require 'app) (app/my-fn 1 2 :a 3)\n\n"]
 
-   [:blue "  nvk test"] "                   Run tests in test/**/*.clj\n\n"
+   [:blue "  nvk test"] "                   Run tests in test/**/*.clj, reloading changed files\n"
+   [:blue "  nvk test app-test\n"]
+   [:blue "  nvk test app-test/my-fn-test\n\n"]
 
    "Helper " [:magenta "commands"] ":\n"
    [:blue "  nvk reload"] "                 Reload changed namespaces\n"
    [:blue "  nvk reload :all"] "            Reload all namespaces\n"
    [:blue "  nvk dir app"] "                List public vars in ns\n"
-   [:blue "  nvk doc app/my-fn"] "          Print var doc\n"
    [:blue "  nvk source app/my-fn"] "       Source code for var\n"
+   [:blue "  nvk doc app/my-fn"] "          Print var doc\n"
    [:blue "  nvk find-doc My doc"] "        Find docs containing text\n"
    [:blue "  nvk apropos my-f"] "           Find vars containing text\n"
    [:blue "  nvk add-lib babashka/fs"] "    Add dependency by name, creates deps.edn if needed\n"
@@ -201,10 +203,11 @@
         (throw e)))))
 
 ;; TODO: now
-;; - review all the invoker.cli docstrings vs usage help
+;; - review all the invoker.cli doc
 
 ;; TODO: maybe
 ;; - http content via suffix! .html .edn .json
+;;   - show in http example
 ;; - http redirect
 ;;   - having a format fn that lets you customize responses for return format doesn't seem so bad now
 ;; - if I add dpm as a dependency on nvk, can I just call dpm/up as setup?
