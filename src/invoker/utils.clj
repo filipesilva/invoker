@@ -323,8 +323,8 @@
   {:local/root invoker-global-dir})
 
 (defn exec-args [dialect sym cmd]
-  (let [deps    {:extra-paths ["src" "resources" "test"]
-                 :extra-deps  {'io.github.filipesilva/invoker invoker-coord}}
+  (let [deps    {:paths ["src" "resources" "test"]
+                 :deps  {'io.github.filipesilva/invoker invoker-coord}}
         alias-X (str "-X" (-> cmd :opts :aliases))]
     (case dialect
       :clj ["clojure" "-Sdeps" deps alias-X 'invoker.utils/process-setup :sym sym, :cmd cmd]
@@ -360,3 +360,7 @@
     (exec sym cmd)))
 
 (def bb? (System/getProperty "babashka.version"))
+
+(defmacro when-not-bb? [& body]
+  (when-not bb?
+    `(do ~@body)))

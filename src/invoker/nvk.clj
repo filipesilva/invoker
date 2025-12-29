@@ -38,6 +38,9 @@
    [:devtools        {:desc    "Developer tools fn to call on process setup or nvk devtools"
                       :coerce  :symbol
                       :default 'invoker.utils/devtools}]
+   [:reload          {:desc    "Reload changed files before invoking fn via CLI"
+                      :coerce  :boolean
+                      :alias   :r}]
    [:start           {:desc    "Start fn to call on process setup or nvk restart"
                       :coerce  :symbol}]
    [:stop            {:desc    "Stop fn to call on process setup or nvk restart"
@@ -109,17 +112,17 @@
    "Main " [:magenta "commands"] ":\n"
    [:blue "  nvk app/my-fn 1 2"] "          Invoke my-fn via CLI\n"
    [:blue "  nvk app my-fn 1 2\n"]
-   [:blue "  nvk app my-fn 1 2 :a 1\n"]
-   [:blue "  nvk app my-fn 1 2 --a 1\n"]
-   [:blue "  nvk app my-fn 1 2 --a=1\n\n"]
+   [:blue "  nvk app my-fn 1 2 :a 3\n"]
+   [:blue "  nvk app my-fn 1 2 --a 3\n"]
+   [:blue "  nvk app my-fn 1 2 --a=3\n\n"]
 
    [:blue "  nvk http"] "                   Start HTTP server and invoke my-fn via curl\n"
    [:gray "  curl localhost/app/my-fn/1/2\n"]
-   [:gray "  curl localhost/app/my-fn/1/2?a=1\n"]
-   [:gray "  curl localhost/app/my-fn/1/2 -d a=1\n\n"]
+   [:gray "  curl localhost/app/my-fn/1/2?a=3\n"]
+   [:gray "  curl localhost/app/my-fn/1/2 -d a=3\n\n"]
 
    [:blue "  nvk repl"] "                   Start nREPL server and invoke my-fn via code\n"
-   [:gray "  (require 'app) (app/my-fn 1 2 :a 1)\n\n"]
+   [:gray "  (require 'app) (app/my-fn 1 2 :a 3)\n\n"]
 
    [:blue "  nvk test"] "                   Run tests in test/**/*.clj\n\n"
 
@@ -198,7 +201,6 @@
         (throw e)))))
 
 ;; TODO: now
-;; - test the example via e2e, including deps adding
 ;; - review all the invoker.cli docstrings vs usage help
 
 ;; TODO: maybe
@@ -313,6 +315,7 @@
 ;; - would be really nice if nvk repl worked like the others
 ;;   - it's specialcased to always launch a clj exec
 ;; - generative testing? can have claude make both specs and generative tests
+;; - exec-args puts :paths in, but shouldn't if there's already any in the deps.edn/bb.edn
 
 ;; TODO: not now
 ;; - move this stuff to a roadmap or readme?
@@ -355,6 +358,8 @@
 ;;     - contains auth info about the current call, and the fn can get it somehow
 ;;       - but then cli needs to access that resolved auth info, resolve to a user or something
 ;;     - then you have a separate --http-auth sym option
+;;   - could use the contents of :invoker/http fn metadata
+;;     - e.g. {:invoker/http :auth} or something
 ;; - socket repl
 ;; - http verbs
 ;;   - atm there's no verbs really, anything works
@@ -402,6 +407,8 @@
 ;;     - maybe just reuse the http url interface and make use of native post on form submit
 ;;       - with this, could even intercept on js runtime and handle on FE
 ;;   - on FE, would be cool to return hiccup edn from BE calls, and FE renders it
+;;   - https://github.com/PEZ/browser-jack-in
+;;   - https://github.com/realgenekim/browser-reload
 ;; - :parse ?
 ;;   - like :render, for custom body content-type processing
 ;;   - xforms are [parse, render]

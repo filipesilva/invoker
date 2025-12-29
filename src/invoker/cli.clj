@@ -6,7 +6,6 @@
    [clj-reload.core :as clj-reload]
    [clojure+.test :as clojure+.test]
    [clojure.edn :as edn]
-   [clojure.java.basis :as basis]
    [clojure.java.io :as io]
    [clojure.repl]
    [clojure.repl.deps]
@@ -27,6 +26,9 @@
     (try
       (when-not (->> syms vals (remove nil?) (every? utils/val-or-sym))
         (throw (ex-info "Cannot resolve all command symbols" syms)))
+
+     (when (-> cmd :opts :reload)
+        (clj-reload/reload))
 
       (let [[var raw-args]       (utils/parse-var-and-args (:args cmd) (:opts cmd))
             [args opts]          (utils/parse-raw-args var raw-args)
@@ -120,38 +122,45 @@
   Also writes the lib to deps.edn, preserving formatting and comments.
   Libs already on the classpath are not updated."
   [lib]
-  (let [lib       (symbol lib)
-        _         (clojure.repl.deps/add-lib lib)
-        coord     (-> (basis/current-basis)
-                      :libs
-                      (get lib)
-                      (select-keys [:mvn/version]))
-        deps-file (cond
-                    (fs/exists? "deps.edn") "deps.edn"
-                    (fs/exists? "bb.edn")   "bb.edn"
-                    :else                   (do
-                                              (spit "deps.edn" "{}")
-                                              "deps.edn"))
-        file-zloc (z/of-file deps-file {:track-position? true})
-        file-zloc (if (z/get file-zloc :deps)
-                    file-zloc
-                    (z/assoc file-zloc :deps {}))
-        deps-zloc (z/get file-zloc :deps)
-        first-key (z/down deps-zloc)
-        indent    (if first-key (-> first-key z/position second dec) 1)
-        zloc      (-> deps-zloc
-                      (z/assoc lib coord)
-                      (z/find-value z/next lib)
-                      (cond-> first-key (-> (z/insert-newline-left)
-                                            (z/insert-space-left indent)))
-                      z/up)]
-    (spit deps-file (z/root-string zloc))
-    lib))
+  (when utils/bb?
+    (throw (ex-info "add-lib is not available in babashka, use with --dialect clj to create deps.edn" {})))
+  (utils/when-not-bb?
+   (require 'clojure.java.basis)
+   (let [lib       (symbol lib)
+         _         (clojure.repl.deps/add-lib lib)
+         coord     (-> (clojure.java.basis/current-basis)
+                       :libs
+                       (get lib)
+                       (select-keys [:mvn/version]))
+         deps-file (cond
+                     (fs/exists? "deps.edn") "deps.edn"
+                     (fs/exists? "bb.edn")   "bb.edn"
+                     :else                   (do
+                                               (spit "deps.edn" "{}")
+                                               "deps.edn"))
+         file-zloc (z/of-file deps-file {:track-position? true})
+         file-zloc (if (z/get file-zloc :deps)
+                     file-zloc
+                     (z/assoc file-zloc :deps {}))
+         deps-zloc (z/get file-zloc :deps)
+         first-key (z/down deps-zloc)
+         indent    (if first-key (-> first-key z/position second dec) 1)
+         zloc      (-> deps-zloc
+                       (z/assoc lib coord)
+                       (z/find-value z/next lib)
+                       (cond-> first-key (-> (z/insert-newline-left)
+                                             (z/insert-space-left indent)))
+                       z/up)]
+     (spit deps-file (z/root-string zloc))
+     lib)))
 
 (defn sync-deps
   "Calls add-libs with any libs present in deps.edn but not yet present on the classpath."
   []
-  (clojure.repl.deps/sync-deps))
+  (when utils/bb?
+    (throw (ex-info "sync-deps is not available in babashka" {})))
+  (utils/when-not-bb?
+   (clojure.repl.deps/sync-deps)))
 
 (defn devtools
   "Call devtools var."

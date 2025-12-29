@@ -49,6 +49,11 @@ Invoker is driven by two core ideas:
 - it should be really easy to map a function to a CLI or HTTP call
 - a `(fn [x y z & {:as opts}])` signature maps pretty well to CLI and HTTP idioms
 
+## Comparisons
+
+### clj -X
+
+### babashka tasks
 
 ## How to
 

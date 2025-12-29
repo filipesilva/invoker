@@ -1,7 +1,10 @@
 (ns invoker-test
   (:require
+   [babashka.fs :as fs]
+   [babashka.process :as process]
    [cheshire.core :as json]
    [clojure.pprint :as pprint]
+   [clojure.string :as str]
    [clojure.test :refer [deftest is are testing]]
    [invoker.cli :as cli]
    [invoker.examples :as examples]
@@ -261,3 +264,25 @@
              (handler {:uri "invoker.examples/an-int"})))
       (is (= {:status 200, :body "42\n", :content-type "application/edn"}
              (handler {:uri "invoker.examples/http"}))))))
+
+;; nvk invoker-test e2e
+(defn e2e []
+  (let [opts {:dir "examples", :out :string, :err :string}
+        assert-out #(str/includes? (:out (process/shell opts %1)) %2)]
+    (assert-out "nvk" "Zero config CLI, HTTP, and REPL interface for Clojure.")
+    (assert-out "nvk app my-fn 1 2 --a 3" "[1 2 {:a 3}]")
+    (process/process opts "nvk http")
+    (utils/wait-for-port 80)
+    (assert-out "curl localhost/app/my-fn/1/2?a=3" "[1 2 {:a 3}]")
+    (assert-out "nvk app my-fn 1 2 --a 3" "[1 2 {:a 3}]")
+    (try
+      (process/shell opts "nvk exit")
+      (assert false "did not exit with non-zero")
+      (catch Exception e
+        (let [{:keys [err exit]} (ex-data e)]
+          (assert (= 2 exit))
+          (assert (str/includes? err "nREPL server exited")))))))
+
+(comment
+  (e2e)
+  ,)
