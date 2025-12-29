@@ -154,7 +154,7 @@
 (defn command [spec {:as cmd, :keys [opts args]}]
   (cond
     (:version opts)
-    (println "version!")
+    (println (utils/invoker-coord))
 
     (empty? args)
     (help spec)
@@ -203,8 +203,6 @@
         (throw e)))))
 
 ;; TODO: now
-;; - --version
-;; - invoker.utils/invoker-coord should use a public version if available
 ;; - http content via suffix! .html .edn .json
 ;;   - show in http example
 ;;   - turns both content-type and accept into that type

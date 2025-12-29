@@ -319,12 +319,24 @@
     (when start ((requiring-resolve start))))
   ((requiring-resolve sym) cmd))
 
-(def invoker-coord
-  {:local/root invoker-global-dir})
+(defn git-sha-describe []
+  (let [sha (str/trim (:out (process/sh "git rev-parse HEAD")))
+        out (str/trim (:out (process/sh "git describe --tags --dirty --always --long")))
+        re #"^(?:(.+)-(\d+)-g)?([0-9a-f]+)(-dirty)?$"
+        [ _ tag ahead short-sha dirty] (re-matches re out)]
+    {:sha sha, :tag tag, :short-sha short-sha, :ahead (parse-long ahead), :dirty (boolean dirty)}))
+
+(defn invoker-coord []
+  (let [{:keys [sha tag short-sha ahead dirty]} (git-sha-describe)]
+    (cond
+      dirty            {:local/root invoker-global-dir}
+      (pos-int? ahead) {:git/sha sha}
+      tag              {:git/tag tag, :git/sha short-sha}
+      :else            {:local/root invoker-global-dir})))
 
 (defn exec-args [dialect sym cmd]
   (let [deps    {:paths ["src" "resources" "test"]
-                 :deps  {'io.github.filipesilva/invoker invoker-coord}}
+                 :deps  {'io.github.filipesilva/invoker (invoker-coord)}}
         alias-X (str "-X" (-> cmd :opts :aliases))]
     (case dialect
       :clj ["clojure" "-Sdeps" deps alias-X 'invoker.utils/process-setup :sym sym, :cmd cmd]
@@ -345,7 +357,7 @@
                                     (catch Exception _# nil))
                           ((requiring-resolve 'clojure.repl.deps/add-lib)
                            'io.github.filipesilva/invoker
-                           ~invoker-coord))
+                           ~(invoker-coord)))
         expr           (format "%s ((requiring-resolve '%s) '%s)" ensure-invoker sym cmd)
         ret            (try (nrepl-client/eval-expr {:port port :expr expr})
                             (catch java.net.ConnectException _
