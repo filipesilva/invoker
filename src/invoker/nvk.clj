@@ -131,13 +131,13 @@
    "Helper " [:magenta "commands"] ":\n"
    [:blue "  nvk reload"] "                 Reload changed namespaces\n"
    [:blue "  nvk reload :all"] "            Reload all namespaces\n"
-   [:blue "  nvk dir app"] "                List public vars in ns\n"
+   [:blue "  nvk dir app"] "                List public vars in ns, or in ns-default\n"
    [:blue "  nvk source app/my-fn"] "       Source code for var\n"
-   [:blue "  nvk doc app/my-fn"] "          Print var doc\n"
+   [:blue "  nvk doc app/my-fn"] "          Print var docstring\n"
    [:blue "  nvk find-doc My doc"] "        Find docs containing text\n"
    [:blue "  nvk apropos my-f"] "           Find vars containing text\n"
    [:blue "  nvk add-lib babashka/fs"] "    Add dependency by name, creates deps.edn if needed\n"
-   [:blue "  nvk sync-deps"] "              Sync dependencies to process\n"
+   [:blue "  nvk sync-deps"] "              Sync process to deps.edn\n"
    [:blue "  nvk devtools"] "               Call devtools var\n"
    [:blue "  nvk restart"] "                Call stop then start vars\n"
    [:blue "  nvk clojuredocs q"] "          Search ClojureDocs for q\n"
@@ -203,11 +203,12 @@
         (throw e)))))
 
 ;; TODO: now
-;; - review all the invoker.cli doc
+;; -
 
 ;; TODO: maybe
 ;; - http content via suffix! .html .edn .json
 ;;   - show in http example
+;;   - turns both content-type and accept into that type
 ;; - http redirect
 ;;   - having a format fn that lets you customize responses for return format doesn't seem so bad now
 ;; - if I add dpm as a dependency on nvk, can I just call dpm/up as setup?

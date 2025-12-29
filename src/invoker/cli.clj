@@ -74,14 +74,14 @@
     summary))
 
 (defn reload
-  "Reload changed namespaces, or all namespaces if all is true."
+  "Reload changed namespaces, or all namespaces if :all is true."
   [& {:keys [all]}]
   (if (-> *cmd* :opts :repl-connect)
     (clj-reload/reload (when all {:only :all}))
     (throw (ex-info "No nREPL process to connect to" *cmd*))))
 
 (defn dir
-  "Prints a sorted directory of public vars in a namespace, or ns-default."
+  "List pub vars in ns, or in ns-default."
   ([]
    (if-let [ns-default (-> *cmd* :opts :ns-default)]
      (dir (str ns-default))
@@ -90,38 +90,30 @@
    (utils/require-ns-or-sym nsname)
    (eval `(clojure.repl/dir ~(edn/read-string nsname)))))
 
-(defn doc
-  "Prints documentation for a var or special form given its name,
-  or for a spec if given a keyword"
-  [name]
-  (utils/require-ns-or-sym name)
-  (eval `(clojure.repl/doc ~(edn/read-string name))))
-
 (defn source
-  "Prints the source code for the given symbol, if it can find it.
-  This requires that the symbol resolve to a Var defined in a
-  namespace for which the .clj is in the classpath."
+  "Print source code for var."
   [n]
   (utils/require-ns-or-sym n)
   (eval `(clojure.repl/source ~(edn/read-string n))))
 
+(defn doc
+  "Print var docstring."
+  [name]
+  (utils/require-ns-or-sym name)
+  (eval `(clojure.repl/doc ~(edn/read-string name))))
+
 (defn find-doc
-  "Prints documentation for any var whose documentation or name
-  contains a match for re-string-or-pattern"
+  "Find docs containing text."
   [str-or-pattern]
   (clojure.repl/find-doc (re-pattern str-or-pattern)))
 
 (defn apropos
-  "Given a regular expression or stringable thing, print all public
-  definitions in all currently-loaded namespaces that match the str-or-pattern."
+  "Find vars containing text."
   [str-or-pattern]
   (run! println (clojure.repl/apropos (re-pattern str-or-pattern))))
 
 (defn add-lib
-  "Given a lib that is not yet on the repl classpath, make it available by
-  downloading the library if necessary and adding it to the classloader.
-  Also writes the lib to deps.edn, preserving formatting and comments.
-  Libs already on the classpath are not updated."
+  "Add dependency by name, creates deps.edn if needed."
   [lib]
   (when utils/bb?
     (throw (ex-info "add-lib is not available in babashka, use with --dialect clj to create deps.edn" {})))
@@ -156,7 +148,7 @@
      lib)))
 
 (defn sync-deps
-  "Calls add-libs with any libs present in deps.edn but not yet present on the classpath."
+  "Sync process to deps.edn."
   []
   (when utils/bb?
     (throw (ex-info "sync-deps is not available in babashka" {})))
