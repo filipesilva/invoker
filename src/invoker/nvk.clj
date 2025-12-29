@@ -203,63 +203,33 @@
         (throw e)))))
 
 ;; TODO: now
-;; -
-
-;; TODO: maybe
+;; - --version
+;; - invoker.utils/invoker-coord should use a public version if available
 ;; - http content via suffix! .html .edn .json
 ;;   - show in http example
 ;;   - turns both content-type and accept into that type
+;;   - uses new symbol, ext, that maps extensions to mime-types
+;;   - maybe --ext=html should work too for cli invoke?
+;; - how to set cli return code?
+;;   - similar to http status code, via ret metadata I guess
+;;   - can't do meta on nil/ints/str tho, which really sucks
+;;   - can't just use http status like 400, max exit code is 256
 ;; - http redirect
 ;;   - having a format fn that lets you customize responses for return format doesn't seem so bad now
-;; - if I add dpm as a dependency on nvk, can I just call dpm/up as setup?
-;; - invoker.utils/invoker-coord should use a public version if available
-;; - should default http calls gives http or edn?
-;;   - on zero config, what do I want to happen?
-;;     - I want a user to be able to put down some hiccup and not think about it
-;;     - I want API-like calls to work fine
-;;     - I want a user to be able to force a fn return to be either hiccup or html
-;;   - figure out how html vs edn works for defaults
-;;     - http/cli/repl should default to html/text/edn?
-;;     - should fns say what kind of content they are returning?
-;;       - like :invoker/content-type metadata
-;;       - then render would still be able to change it
-;;   - should I just add :content-type metadata on the fn, to talk about the return?
-;;     - but for html, we're returning edn hiccup, not html
-;;     - I guess I could just return string for real content-type, and xform with hiccup etc if not string
-;;     - would even be cool for non-fns... some static stuff
-;;     - fn author knows the content-type
-;;       - setting content-type signals what render should be used if available
-;;       - can still force application/edn, which is the base content-type for clojure, render just converts that
-;;       - this is like the normal http content type
-;;         - everything is actually just strings in a req/resp
-;;         - then content-type is a hint to convert it
-;;         - but http starts with everything string, clojure starts with everything edn
-;;   - I think key is to figure out what --accept means
-;;     - --accept */* on http requests is a bit different than on CLI, and on REPL
-;; - redirects?
 ;;   - there's something about redirects in https://github.com/ring-clojure/ring-defaults/blob/master/src/ring/middleware/defaults.clj
 ;;   - maybe it just works tho
 ;;   - can go in http render
+
+;; TODO: maybe
+;; - if I add dpm as a dependency on nvk, can I just call dpm/up as setup?
 ;; - figure out the how-to for making your own cli apps via invoker
 ;;   - can I jam help/cmds dispatch/defaults edn/whatever in there? like invoker itself
 ;; - fn routing? for http verbs, websocket, sse, others
 ;;   - you'd still map a route/cli cmd to a fn, but then that fn could dispatch to something else under some conditions
 ;;   - does this apply not only to http? unsure, doesn't look like it tbh
 ;;   - can always point to a multifn and dispatch based on *req*, I think
-;; - put only cli load time deps here?
-;;   - remove utils, maybe move the fns here, or make a separate ns
-;;   - measured naively using fish time, total/usr/sys:
-;;     - with utils:   124/86/30
-;;     - without utils: 87/50/27
-;;     - so I guess the difference is usr time
 ;; - repl helper cmds on http too? headers, or something else, or leave for openapi?
-;; - test that utils/connect exists with 1 on err returns, and prints returns
-;; - add-deps isn't done yet
-;; - drop the :invoker/etc ns in the metadata kw, cleaner
 ;; - implement --verbose logging
-;; - --version
-;; - support port 0 (random) for http and repl port, write .http-port to disk
-;; - some way to only make some fns public/callable
 ;; - use cases to try
 ;;   - make intel
 ;;     - prototype then make global cli for it
@@ -288,8 +258,6 @@
 ;;       - (foo 1 {:a 1}) is the actual object update, can return edn or html
 ;;       - need to get the errors somewhere, might need a maybe arity 3, or something on map
 ;;     - just call a test fn via cli, using nrepl, and know it failed
-;; - some way to list all public fns, like nvk ns-publics
-;;   - :invoke true
 ;; - cache control
 ;;   - compelling to generalize
 ;;   - http already has this, and if I make a client, it should use it
@@ -304,21 +272,7 @@
 ;;     - https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/ETag
 ;;   - fns could have etag fn in metadata, call it before calling fn
 ;;     - for pure fns this is identity over args, like memo
-;; - how to set cli return code?
-;;   - similar to http status code, via ret metadata I guess
-;;   - can't do meta on nil/ints/str tho, which really sucks
-;;   - can't just use http status like 400, max exit code is 256
-;; - figure out something for default 404 and 500
-;; - consider some tui lib
-;;   - node https://github.com/vadimdemedes/ink
-;;   - python https://github.com/Textualize/rich
-;; - would be nice to have the http/repl options really on the fn, but still be easy to set defaults in config
-;;   - so that you can just do nvk http and it just works
-;;   - right now this happens via nvk flags, but that means those aren't options proper
 ;; - fn that takes symbol, and returns url for symbol, to use in htmx url generation
-;; - would be really nice if nvk repl worked like the others
-;;   - it's specialcased to always launch a clj exec
-;; - generative testing? can have claude make both specs and generative tests
 ;; - exec-args puts :paths in, but shouldn't if there's already any in the deps.edn/bb.edn
 
 ;; TODO: not now
