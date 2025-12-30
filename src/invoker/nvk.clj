@@ -12,7 +12,6 @@
 (def base-spec
   [[:help            {:desc   "Show doc for var"
                       :coerce :boolean}]
-   ;; TODO: links to gh commit/release
    [:version         {:desc   "Show version"
                       :coerce :boolean}]
    [:config          {:desc    "Invoker defaults config file"
@@ -208,18 +207,36 @@
 ;;   - turns both content-type and accept into that type
 ;;   - uses new symbol, ext, that maps extensions to mime-types
 ;;   - maybe --ext=html should work too for cli invoke?
+;;   - there's something interesting about thinking in extensions
+;;     - like saying localhost/foo/1.edn is a file and I'm acting on it
+;;     - doesn't look great on cli tho
+;;       - nvk foo 1 edn
+;;       - nvk foo 1 .edn
+;;       - nvk --ext edn foo 1
+;;     - using the . in .edn on cli is correct I think, in the url it's also a .something
 ;; - how to set cli return code?
 ;;   - similar to http status code, via ret metadata I guess
 ;;   - can't do meta on nil/ints/str tho, which really sucks
 ;;   - can't just use http status like 400, max exit code is 256
+;;   - http is already checking (-> e ex-data :status), maybe could check :exit
 ;; - http redirect
 ;;   - having a format fn that lets you customize responses for return format doesn't seem so bad now
 ;;   - there's something about redirects in https://github.com/ring-clojure/ring-defaults/blob/master/src/ring/middleware/defaults.clj
 ;;   - maybe it just works tho
 ;;   - can go in http render
+;;   - better to go in :invoker/http key
+;;     - something like :invoker/http {:redirect #'other-fn}
+;;     - metadata is really good for this because it ensures something only when this particular fn is invoked via nvk
+;;     - on http return, it would redirect to the url of other-fn with the same positional params
+;;   - this is mostly about the effect on the url really, since val returns are canonical 
+;; - maybe add-lib always runs in clj mode?
+;; - link to repoo and local readme in help
 
 ;; TODO: maybe
 ;; - if I add dpm as a dependency on nvk, can I just call dpm/up as setup?
+;;   - should do a .datomic-port or .dpm-port file on it, would be really nice
+;;   - https://docs.datomic.com/operation/transactor.html lists a health check port
+;;     - wonder if this is nicer to know it's really up, sometimes it doesn't seem to be up yet when port is taken
 ;; - figure out the how-to for making your own cli apps via invoker
 ;;   - can I jam help/cmds dispatch/defaults edn/whatever in there? like invoker itself
 ;; - fn routing? for http verbs, websocket, sse, others
