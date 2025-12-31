@@ -38,11 +38,11 @@
                                    [args])]
         (if help
           (doc (str (symbol var)))
-          (let [{:keys [exception? exception-str return-str]}
+          (let [{:keys [exception? exception exception-str return-str]}
                 (binding [*cmd* cmd]
                   (utils/invoke (merge {:var var, :args args, :body body :opts opts} cmd-opts)))]
             (if exception?
-              (utils/print-err-exit exit 1 exception-str)
+              (utils/print-err-exit exit (-> exception :data :exit (or 1)) exception-str)
               (print return-str)))))
       (catch ^:sci/error Exception e
         (if (utils/ex-info-msgs (ex-message e))

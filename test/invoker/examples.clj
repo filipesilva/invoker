@@ -33,6 +33,9 @@
 (defn exception []
   (/ 1 0))
 
+(defn exit-code []
+  (throw (ex-info "foo" {:exit 3})))
+
 (defn return-meta []
   (with-meta {:foo 1} {:bar 2}))
 

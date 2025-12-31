@@ -214,11 +214,6 @@
 ;;       - nvk foo 1 .edn
 ;;       - nvk --ext edn foo 1
 ;;     - using the . in .edn on cli is correct I think, in the url it's also a .something
-;; - how to set cli return code?
-;;   - similar to http status code, via ret metadata I guess
-;;   - can't do meta on nil/ints/str tho, which really sucks
-;;   - can't just use http status like 400, max exit code is 256
-;;   - http is already checking (-> e ex-data :status), maybe could check :exit
 ;; - http redirect
 ;;   - having a format fn that lets you customize responses for return format doesn't seem so bad now
 ;;   - there's something about redirects in https://github.com/ring-clojure/ring-defaults/blob/master/src/ring/middleware/defaults.clj

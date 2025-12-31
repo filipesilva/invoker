@@ -215,6 +215,7 @@
     (is (= 2 (cli-exit-code {:args ["foo"]})))
     (is (= "{:cause \"Divide by zero\"}\n" (cli {:args ["invoker.examples/exception"]})))
     (is (= 1 (cli-exit-code {:args ["invoker.examples/exception"]})))
+    (is (= 3 (cli-exit-code {:args ["invoker.examples/exit-code"]})))
     (is (re-find #"Cannot resolve all command symbols" (cli {:args ["invoker.examples/an-int"], :opts {:parse 'not.a/symbol}})))
     (is (= 2 (cli-exit-code {:args ["invoker.examples/an-int"], :opts {:parse 'not.a/symbol}})))))
 
