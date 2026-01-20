@@ -52,7 +52,7 @@
                       :coerce  :symbol
                       :alias   :na}]
    [:http-all        {:desc    "Expose vars without :invoker/http in the HTTP server"
-                      :coerce  :int
+                      :coerce  :boolean
                       :alias   :ha
                       :default false}]
    [:http-port       {:desc    "Port for HTTP server"
@@ -214,20 +214,15 @@
 ;;       - nvk foo 1 .edn
 ;;       - nvk --ext edn foo 1
 ;;     - using the . in .edn on cli is correct I think, in the url it's also a .something
-;; - http redirect
-;;   - having a format fn that lets you customize responses for return format doesn't seem so bad now
-;;   - there's something about redirects in https://github.com/ring-clojure/ring-defaults/blob/master/src/ring/middleware/defaults.clj
-;;   - maybe it just works tho
-;;   - can go in http render
-;;   - better to go in :invoker/http key
-;;     - something like :invoker/http {:redirect #'other-fn}
-;;     - metadata is really good for this because it ensures something only when this particular fn is invoked via nvk
-;;     - on http return, it would redirect to the url of other-fn with the same positional params
-;;   - this is mostly about the effect on the url really, since val returns are canonical 
 ;; - maybe add-lib always runs in clj mode?
 ;; - link to repoo and local readme in help
 
 ;; TODO: maybe
+;; - markdown parse/render
+;;   - https://github.com/nextjournal/markdown parses it, has a nice hiccup-like representation
+;;   - in the playground it looks like it renders to html at least
+;;   - might need custom rendering to markdown from the hiccup syntax
+;;   - but it's a start
 ;; - if I add dpm as a dependency on nvk, can I just call dpm/up as setup?
 ;;   - should do a .datomic-port or .dpm-port file on it, would be really nice
 ;;   - https://docs.datomic.com/operation/transactor.html lists a health check port
@@ -377,6 +372,9 @@
 ;;   - on FE, would be cool to return hiccup edn from BE calls, and FE renders it
 ;;   - https://github.com/PEZ/browser-jack-in
 ;;   - https://github.com/realgenekim/browser-reload
+;;   - would be awesome to do nvk -d cljs foo bar 1 2 and it runs in the browser process
+;;     - but which browser process when there's several?
+;;     - little bit scary for prod, but also cool
 ;; - :parse ?
 ;;   - like :render, for custom body content-type processing
 ;;   - xforms are [parse, render]

@@ -6,11 +6,21 @@
    [org.httpkit.server :as httpkit.server]
    [ring.middleware.resource :as rmr]
    [ring.util.codec :as codec]
-   [ring.util.request :as ruq]))
+   [ring.util.request :as ruq]
+   [ring.util.response :as rus]))
 
 (def ^:dynamic *req* nil)
 
 (defn req [] *req*)
+
+(defn redirect-uri [x args]
+  (cond
+    (var? x)    (str "/"
+                     (-> x symbol str (str/replace "." "/"))
+                     (when (seq args)
+                       (str "/" (str/join "/" args))))
+    (string? x) x
+    :else       nil))
 
 (defn invoke [opts {:as req, :keys [uri query-string headers]}]
   (try
@@ -23,6 +33,7 @@
           [args opts']           (utils/parse-raw-args var (into raw-args kv-args))
           body'                  (ruq/body-string req)
           cmd-opts               (select-keys opts [:parse :render :ex-trace])
+          redirect-uri'          (some-> var meta :invoker/http :redirect (redirect-uri args))
           {:keys [exception?
                   exception-str
                   return-str
@@ -34,13 +45,14 @@
                                                          :content-type (get headers "content-type")
                                                          :accept       (get headers "accept")}
                                                         cmd-opts)))]
-      (if exception?
-        {:status       400
-         :content-type content-type
-         :body         exception-str}
-        {:status       200
-         :content-type content-type
-         :body         return-str}))
+      (cond
+        exception?    {:status       400
+                       :content-type content-type
+                       :body         exception-str}
+        redirect-uri' (rus/redirect redirect-uri' :see-other)
+        :else         {:status       200
+                       :content-type content-type
+                       :body         return-str}))
     (catch Exception e
       (if-let [status (-> e ex-data :status)]
         {:status status}

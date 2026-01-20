@@ -43,3 +43,9 @@
   {:invoker/http true}
   []
   42)
+
+(defn http-redirect
+  {:invoker/http {:redirect #'argv}}
+  []
+  1)
+

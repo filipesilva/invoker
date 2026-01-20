@@ -246,8 +246,12 @@
            (http {:uri "invoker.examples/argv", :body "{:a \"1\"}", :headers {"content-type" "application/edn"}})))
 
     (is (= {:status 200, :body "<h1>hello world</h1>", :content-type "text/html"}
-           ;; curl -X POST localhost/invoker/examples/pre-render/world
+           ;; curl localhost/invoker/examples/pre-render/world -H "accept: text/html"
            (http {:uri "invoker.examples/pre-render/world", :headers {"accept" "text/html"}})))
+
+    (is (= {:status 303, :headers {"Location" "/invoker/examples/argv/42"}, :body ""}
+           ;; curl localhost/invoker/examples/http-redirect/42
+           (http {:uri "invoker.examples/http-redirect/42", :headers {"accept" "text/html"}})))
 
     (is (= {:status 404}
            (http {:uri "foo"})))
