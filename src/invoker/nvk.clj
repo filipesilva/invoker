@@ -18,6 +18,9 @@
                       :coerce  :string
                       :alias   :c
                       :default "nvk.edn"}]
+   [:ext             {:desc    "Extension shorthand (.edn/.json/.html/.txt) for content-type/accept MIME types"
+                      :coerce  :string
+                      :alias   :e}]
    [:content-type    {:desc   "MIME type for body (last arg or piped input) on CLI content negotiation"
                       :coerce :string
                       :alias  :ct}]
@@ -25,10 +28,13 @@
                       :coerce  :string
                       :alias   :ac
                       :default "application/edn"}]
-   [:parse           {:desc    "Map of MIME type regex to edn parsing fn"
+   [:extensions      {:desc    "Map of extension to MIME type"
+                      :coerce  :symbol
+                      :default 'invoker.utils/exts}]
+   [:parse           {:desc    "Map of MIME type to parsing fn"
                       :coerce  :symbol
                       :default 'invoker.utils/parse}]
-   [:render          {:desc    "Map of MIME type regex to edn rendering fn"
+   [:render          {:desc    "Map of MIME type to rendering fn"
                       :coerce  :symbol
                       :default 'invoker.utils/render}]
    [:dialect         {:desc   "Clojure (clj) or Babashka (bb), defaults to clj if there's a deps.edn"
@@ -113,12 +119,19 @@
    [:blue "  nvk app my-fn 1 2\n"]
    [:blue "  nvk app my-fn 1 2 :a 3\n"]
    [:blue "  nvk app my-fn 1 2 --a 3\n"]
-   [:blue "  nvk app my-fn 1 2 --a=3\n\n"]
+   [:blue "  nvk app my-fn 1 2 --a=3\n"]
+   [:blue "  nvk --accept application/json app my-fn 1 2\n"]
+   [:blue "  nvk --content-type application/json app my-fn 1 2 '{\"a\":3}'\n"]
+   [:blue "  nvk --ext .json app my-fn 1 2 '{\"a\":3}'\n"]
+   [:blue "  echo '{\"a\":3}' | nvk --ext .json app my-fn 1 2\n\n"]
 
    [:blue "  nvk http"] "                   Start HTTP server and invoke my-fn via curl\n"
    [:gray "  curl localhost/app/my-fn/1/2\n"]
    [:gray "  curl localhost/app/my-fn/1/2?a=3\n"]
-   [:gray "  curl localhost/app/my-fn/1/2 -d a=3\n\n"]
+   [:gray "  curl localhost/app/my-fn/1/2 -d a=3\n"]
+   [:gray "  curl localhost/app/my-fn/1/2 -H \"Accept: application/json\"\n"]
+   [:gray "  curl localhost/app/my-fn/1/2 -d '{\"a\": 3}' -H \"Content-Type: application/json\"\n"]
+   [:gray "  curl localhost/app/my-fn/1/2.json -d '{\"a\": 3}'\n\n"]
 
    [:blue "  nvk repl"] "                   Start nREPL server and invoke my-fn via code\n"
    [:gray "  (require 'app) (app/my-fn 1 2 :a 3)\n\n"]
@@ -205,18 +218,7 @@
         (throw e)))))
 
 ;; TODO: now
-;; - http content via suffix! .html .edn .json
-;;   - show in http example
-;;   - turns both content-type and accept into that type
-;;   - uses new symbol, ext, that maps extensions to mime-types
-;;   - maybe --ext=html should work too for cli invoke?
-;;   - there's something interesting about thinking in extensions
-;;     - like saying localhost/foo/1.edn is a file and I'm acting on it
-;;     - doesn't look great on cli tho
-;;       - nvk foo 1 edn
-;;       - nvk foo 1 .edn
-;;       - nvk --ext edn foo 1
-;;     - using the . in .edn on cli is correct I think, in the url it's also a .something
+;; - yaml
 ;; - update readme
 
 ;; TODO: maybe

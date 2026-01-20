@@ -13,6 +13,13 @@
 
 (defn req [] *req*)
 
+(defn uri-and-ext [extensions uri]
+  (let [extensions (merge (utils/val-or-sym 'invoker.utils/extensions) (utils/val-or-sym extensions))
+        ext (->> extensions keys (some #(when (str/ends-with? uri %) %)))]
+    (if ext
+      [(subs uri 0 (- (count uri) (count ext))) ext]
+      [uri nil])))
+
 (defn redirect-uri [x args]
   (cond
     (var? x)    (str "/"
@@ -24,7 +31,8 @@
 
 (defn invoke [opts {:as req, :keys [uri query-string headers]}]
   (try
-    (let [var-and-args           (mapv codec/url-decode  (remove empty? (str/split uri #"/")))
+    (let [[uri ext]              (uri-and-ext (:extensions opts) uri)
+          var-and-args           (mapv codec/url-decode  (remove empty? (str/split uri #"/")))
           [var raw-args]         (utils/parse-var-and-args var-and-args)
           _                      (when-not (or (:http-all opts) (-> var meta :invoker/http))
                                    (throw (ex-info "Var not exposed via HTTP" {:var var, :status 404})))
@@ -42,6 +50,7 @@
                                                          :args         args
                                                          :opts         opts'
                                                          :body         body'
+                                                         :ext          ext
                                                          :content-type (get headers "content-type")
                                                          :accept       (get headers "accept")}
                                                         cmd-opts)))]
@@ -66,7 +75,7 @@
 (defn middleware []
   [wrap-resource])
 
-(defn handler [opts]
+(defn handler [& {:as opts}]
   (reduce #(%2 %1) (partial invoke opts) (middleware)))
 
 (defn server [{:as opts, :keys [http-port http-handler repl-connect]}]

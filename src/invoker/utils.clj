@@ -141,6 +141,12 @@
    :text/html                         #(str (hiccup/html %))
    :text/plain                        str})
 
+(def extensions
+  {".edn"  :application/edn
+   ".json" :application/json
+   ".html" :text/html
+   ".text" :text/text})
+
 (def mime-wildcard-defaults
   {:*/* :application/edn})
 
@@ -185,10 +191,14 @@
                              args-count))]
         (apply var-val (take arity args))))))
 
-(defn invoke [& {:keys [var args body opts content-type accept ex-trace]}]
-  (let [parse               (merge (val-or-sym parse) (-> var meta :invoker/parse))
-        render              (merge (val-or-sym render) (-> var meta :invoker/render))
+(defn invoke [& {:keys [var args body opts extensions parse render ext content-type accept ex-trace]}]
+  (let [extensions          (merge (val-or-sym 'invoker.utils/extensions) (val-or-sym extensions))
+        parse               (merge (val-or-sym 'invoker.utils/parse) (val-or-sym parse) (-> var meta :invoker/parse))
+        render              (merge (val-or-sym 'invoker.utils/render) (val-or-sym render) (-> var meta :invoker/render))
         pre-render          (merge {} (-> var meta :invoker/pre-render))
+        ext-type            (-> ext extensions mime-type-str)
+        content-type        (or ext-type content-type)
+        accept              (or ext-type accept)
         body-content-type   (or (not content-type)
                                 (not body)
                                 (mime-match content-type parse)

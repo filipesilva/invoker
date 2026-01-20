@@ -32,8 +32,8 @@
 
       (let [[var raw-args]       (utils/parse-var-and-args (:args cmd) (:opts cmd))
             [args opts]          (utils/parse-raw-args var raw-args)
-            cmd-opts             (select-keys (:opts cmd) [:parse :render :content-type :accept :ex-trace])
-            [args body]          (if (:content-type cmd-opts)
+            cmd-opts             (select-keys (:opts cmd) [:extensions :parse :render :ext :content-type :accept :ex-trace])
+            [args body]          (if (or (:ext cmd-opts) (:content-type cmd-opts))
                                    [(butlast args) (last args)]
                                    [args])]
         (if help

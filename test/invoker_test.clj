@@ -142,6 +142,10 @@
       (is (= (edn-ret [1, "2", {:a 3}])
              (utils/invoke :var #'examples/argv, :args [1], :body "2", :opts {:a 3}))))
 
+    (testing "ext"
+      (is (= (json-ret [{:a "b"}])
+             (utils/invoke :var #'examples/argv, :body "{\"a\": \"b\"}", :ext ".json"))))
+
     (testing "parse"
       (is (= (edn-ret {:a "b"})
              (utils/invoke :var #'examples/parse, :body "{:a \"b\"}",     :content-type "application/edn")
@@ -161,7 +165,8 @@
              (utils/invoke :var #'examples/argv, :opts {:a 1, :b 2}, :accept "application/edn")
              (utils/invoke :var #'examples/argv, :opts {:a 1, :b 2}, :accept "foo, application/edn, bar")))
       (is (= (json-ret [1 {:a 1, :b 2}])
-             (utils/invoke :var #'examples/argv, :args [1], :opts {:a 1, :b 2}, :accept "application/json")))
+             (utils/invoke :var #'examples/argv, :args [1], :opts {:a 1, :b 2}, :accept "application/json")
+             (utils/invoke :var #'examples/argv, :args [1], :opts {:a 1, :b 2}, :ext ".json")))
       (is (= {:return {:a 1}, :return-str "a=1", :content-type "application/x-www-form-urlencoded"}
              (utils/invoke :var #'examples/render, :args [{:a 1}], :accept "application/x-www-form-urlencoded")))
       (is (= {:return 1, :return-str "foo", :content-type "application/foo"}
@@ -220,7 +225,7 @@
     (is (= 2 (cli-exit-code {:args ["invoker.examples/an-int"], :opts {:parse 'not.a/symbol}})))))
 
 (deftest http-test
-  (let [http (http/handler {:http-all true, :parse #'invoker.utils/parse, :render #'invoker.utils/render})
+  (let [http (http/handler {:http-all true})
         edn-resp (fn [b] {:status 200, :body b, :content-type "application/edn"})]
     (is (= (edn-resp  "1\n")
            (http {:uri "invoker/examples/an-int"})
@@ -238,6 +243,10 @@
     (is (= (edn-resp "[\"{:a 1}\"]\n")
            ;; curl localhost/invoker/examples/argv -d '{:a 1}'
            (http {:uri "invoker.examples/argv", :body "{:a 1}"})))
+
+    (is (= {:status 200, :body "[ {\n  \"a\" : 1\n} ]", :content-type "application/json"}
+           ;; curl localhost/invoker/examples/argv.json -d '{"a": 1}'
+           (http {:uri "invoker.examples/argv.json", :body "{\"a\": 1}"})))
 
     (is (= (edn-resp  "[{:a \"1\"}]\n")
            ;; curl localhost/invoker/examples/argv -d 'a=1&b=2'
@@ -263,11 +272,10 @@
            (http {:uri "invoker.examples/exception"}))))
 
   (testing ":invoker/http metadata check"
-    (let [handler (http/handler {:parse #'invoker.utils/parse, :render #'invoker.utils/render})]
-      (is (= {:status 404}
-             (handler {:uri "invoker.examples/an-int"})))
-      (is (= {:status 200, :body "42\n", :content-type "application/edn"}
-             (handler {:uri "invoker.examples/http"}))))))
+    (is (= {:status 404}
+           ((http/handler) {:uri "invoker.examples/an-int"})))
+    (is (= {:status 200, :body "42\n", :content-type "application/edn"}
+           ((http/handler) {:uri "invoker.examples/http"})))))
 
 ;; nvk invoker-test e2e
 (defn e2e []
