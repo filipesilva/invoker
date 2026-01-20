@@ -148,7 +148,10 @@
    "\n\nYou can set custom defaults for options in " [:purple "nvk.edn"] ":\n"
    [:gray
     "{:http-port 8080
- :aliases   \":dev\"}"]))
+ :aliases   \":dev\"}"] "\n\n"
+
+   "Github: " [:blue "https://github.com/filipesilva/invoker"] "\n"
+   "Local README: "[:blue (str utils/invoker-global-dir "/README.md")] "\n"))
 
 (defn command [spec {:as cmd, :keys [opts args]}]
   (cond
@@ -214,8 +217,7 @@
 ;;       - nvk foo 1 .edn
 ;;       - nvk --ext edn foo 1
 ;;     - using the . in .edn on cli is correct I think, in the url it's also a .something
-;; - maybe add-lib always runs in clj mode?
-;; - link to repoo and local readme in help
+;; - update readme
 
 ;; TODO: maybe
 ;; - markdown parse/render
