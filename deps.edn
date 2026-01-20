@@ -5,6 +5,7 @@
            babashka/process                 {:mvn/version "0.6.23"}
            cheshire/cheshire                {:mvn/version "6.0.0"}
            com.bhauman/rebel-readline-nrepl {:mvn/version "0.1.6"}
+           clj-commons/clj-yaml             {:mvn/version "1.0.29"}
            io.github.paintparty/bling       {:mvn/version "0.8.8"}
            io.github.tonsky/clj-reload      {:mvn/version "1.0.0"}
            io.github.tonsky/clojure-plus    {:mvn/version "1.7.0"}

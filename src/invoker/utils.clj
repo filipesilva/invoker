@@ -5,6 +5,7 @@
    [babashka.nrepl-client :as nrepl-client]
    [babashka.process :as process]
    [cheshire.core :as json]
+   [clj-yaml.core :as yaml]
    [clojure.edn :as edn]
    [clojure.java.io :as io]
    [clojure.pprint :as pprint]
@@ -131,6 +132,7 @@
   {:application/x-www-form-urlencoded #(->> % codec/form-decode (m/map-keys keyword))
    :application/json                  #(json/parse-string % true)
    :application/edn                   edn/read-string
+   :application/yaml                  yaml/parse-string
    :text/html                         #(hickory/as-hiccup (hickory/parse %))
    :text/plain                        str})
 
@@ -138,12 +140,14 @@
   {:application/x-www-form-urlencoded codec/form-encode
    :application/json                  #(json/generate-string % {:pretty true})
    :application/edn                   #(with-out-str (binding [*print-meta* true] (pprint/pprint %)))
+   :application/yaml                  yaml/generate-string
    :text/html                         #(str (hiccup/html %))
    :text/plain                        str})
 
 (def extensions
   {".edn"  :application/edn
    ".json" :application/json
+   ".yaml" :application/yaml
    ".html" :text/html
    ".text" :text/text})
 

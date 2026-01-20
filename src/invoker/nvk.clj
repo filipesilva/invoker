@@ -18,7 +18,7 @@
                       :coerce  :string
                       :alias   :c
                       :default "nvk.edn"}]
-   [:ext             {:desc    "Extension shorthand (.edn/.json/.html/.txt) for content-type/accept MIME types"
+   [:ext             {:desc    "Extension shorthand (.edn/.json/.yaml/.html/.txt) for content-type/accept MIME types"
                       :coerce  :string
                       :alias   :e}]
    [:content-type    {:desc   "MIME type for body (last arg or piped input) on CLI content negotiation"
@@ -218,7 +218,6 @@
         (throw e)))))
 
 ;; TODO: now
-;; - yaml
 ;; - update readme
 
 ;; TODO: maybe
