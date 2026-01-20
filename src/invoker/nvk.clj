@@ -30,7 +30,7 @@
                       :default "application/edn"}]
    [:extensions      {:desc    "Map of extension to MIME type"
                       :coerce  :symbol
-                      :default 'invoker.utils/exts}]
+                      :default 'invoker.utils/extensions}]
    [:parse           {:desc    "Map of MIME type to parsing fn"
                       :coerce  :symbol
                       :default 'invoker.utils/parse}]
@@ -61,7 +61,7 @@
                       :coerce  :boolean
                       :alias   :ha
                       :default false}]
-   [:http-port       {:desc    "Port for HTTP server"
+   [:http-port       {:desc    "Port for HTTP server, written to .http-port"
                       :coerce  :int
                       :alias   :hp
                       :default 80}]
@@ -99,7 +99,7 @@
 
    "Commands run in Clojure if there's a deps.edn, otherwise in Babashka.\n"
    "Commands will automatically connect to an existing nREPL if available,\n"
-   "and repl/http create one if needed.\n\n"
+   "and the repl/http commands create one if needed.\n\n"
 
    "Servers: .nrepl-port " [:blue (or (utils/active-port ".nrepl-port") "(missing)")]
    ", .http-port " [:blue (or (utils/active-port ".http-port") "(missing)")] "\n\n"
@@ -148,8 +148,8 @@
    [:blue "  nvk doc app/my-fn"] "          Print var docstring\n"
    [:blue "  nvk find-doc My doc"] "        Find docs containing text\n"
    [:blue "  nvk apropos my-f"] "           Find vars containing text\n"
-   [:blue "  nvk add-lib babashka/fs"] "    Add dependency by name, creates deps.edn if needed\n"
-   [:blue "  nvk sync-deps"] "              Sync process to deps.edn\n"
+   [:blue "  nvk add-lib babashka/fs"] "    Add dependency by name, creates deps.edn if needed (Clojure only)\n"
+   [:blue "  nvk sync-deps"] "              Sync process to deps.edn (Clojure only)\n"
    [:blue "  nvk devtools"] "               Call devtools var\n"
    [:blue "  nvk restart"] "                Call stop then start vars\n"
    [:blue "  nvk clojuredocs q"] "          Search ClojureDocs for q\n"
@@ -218,7 +218,7 @@
         (throw e)))))
 
 ;; TODO: now
-;; - update readme
+;; -
 
 ;; TODO: maybe
 ;; - markdown parse/render
