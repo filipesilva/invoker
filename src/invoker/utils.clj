@@ -42,12 +42,19 @@
   `(try ~expr
      (catch Exception _#)))
 
+(def devtools-installed? (atom false))
+
 (defn devtools []
   (try-bool ((requiring-resolve 'clojure+.print/install!)))
   (try-bool ((requiring-resolve 'clojure+.error/install!)))
   (try-bool ((requiring-resolve 'clojure+.test/install!)))
   (try-bool ((requiring-resolve 'clojure+.hashp/install!)))
-  (try-bool ((requiring-resolve 'clj-reload.core/init) {})))
+  (try-bool ((requiring-resolve 'clj-reload.core/init) {:dirs ["src" "resources" "test"]}))
+  (reset! devtools-installed? true))
+
+(defn ensure-devtools []
+  (when-not @devtools-installed?
+    (devtools)))
 
 (comment
   (devtools)
@@ -377,7 +384,8 @@
                               (flush))
                             ((requiring-resolve 'clojure.repl.deps/add-lib)
                              'io.github.filipesilva/invoker coord#)))
-        expr           (format "%s ((requiring-resolve '%s) '%s)" ensure-invoker sym cmd)
+        ensure-devtools `((requiring-resolve 'invoker.utils/ensure-devtools))
+        expr           (format "%s %s ((requiring-resolve '%s) '%s)" ensure-invoker ensure-devtools sym cmd)
         ret            (try (nrepl-client/eval-expr {:port port :expr expr})
                             (catch java.net.ConnectException _
                               (throw (ex-info "Cannot connect to nREPL server" {:host host, :port port})))
