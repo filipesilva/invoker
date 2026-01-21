@@ -6,3 +6,8 @@ tmp/
 .http-port
 .cpcache
 .clj-kondo
+examples/datomic-pro
+examples/storage
+examples/backups
+examples/deps.edn
+examples/nvk.edn

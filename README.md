@@ -7,7 +7,7 @@ Invoked vars run in [Clojure](https://clojure.org) if there's a `deps.edn`, othe
 Commands will automatically connect to an existing [nREPL server](https://nrepl.org/nrepl/index.html) if available using `.nrepl-port`. The `nvk http` and `nvk repl` commands start a nREPL server that can be connected to.
 
 Invoker aims to make the following usecases easy:
-- making a simple webapp from scratch
+- making a simple webapp from scratch, possibly with Datomic
 - running functions and inspecting atoms inside an existing process
 - running targetted tests with reloaded code
 - allowing agents to interact with your clojure process
@@ -302,3 +302,83 @@ You can set custom defaults for options in `nvk.edn`:
 The `extensions`, `parse`, `render`, `devtools`, `start`, `stop`, `ns-default`, `ns-aliases`, `http-handler` options take symbols that will be resolved at in your codebase, allowing you to customize `nvk` behaviour with your own code.
 
 
+## Datomic
+
+You can use the `--start` option together with [dpm](https://github.com/filipesilva/datomic-pro-manager) to launch a Datomic database and wait for it to be up on startup.
+
+First add these dependencies:
+
+``` sh
+$ nvk add-lib io.github.filipesilva/datomic-pro-manager
+$ nvk add-lib com.datomic/peer
+$ nvk add-lib org.xerial/sqlite-jdbc
+$ nvk add-lib nvk add-lib org.slf4j/slf4j-nop
+```
+
+In your `src/app.clj` add:
+
+``` clojure
+(ns app
+  (:require
+   [datomic.api :as d]
+   [filipesilva.datomic-pro-manager :as dpm]))
+
+(def db-uri "datomic:sql://app?jdbc:sqlite:./storage/sqlite.db")
+(def *conn (atom nil))
+
+(defn start []
+  (future (dpm/up))
+  (dpm/wait-for-up)
+  (d/create-database db-uri)
+  (reset! *conn (d/connect db-uri)))
+
+(defn db-stats
+  {:invoker/http true}
+  []
+  (d/db-stats (d/db @*conn)))
+```
+
+Then set the `:start` option on `nvk.edn` so you don't have to write `nvk --start app/start http` all the time:
+
+``` clojure
+{:start app/start}
+```
+
+Now when you start a nREPL server via `nvk http` or `nvk repl` you should see datomic starting up too:
+
+``` sh
+$ nvk http
+Started nREPL server at localhost:60250
+Started HTTP server at http://localhost
+SLF4J(I): Connected with provider of type [org.slf4j.nop.NOPServiceProvider]
+info  Waiting for datomic to be up...
+info  Starting Datomic
+run   ./datomic-pro/1.0.7482/bin/transactor ./config/transactor.properties
+Launching with Java options -server -Xms1g -Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=50
+System started
+info  Datomic is up!
+```
+
+``` sh
+$ curl localhost/app/db-stats
+{:datoms 268,
+ :attrs
+ {:db/index {:count 2},
+  :db/unique {:count 1},
+  :db/valueType {:count 33},
+  :db/txInstant {:count 6},
+  :db/tupleType {:count 2},
+  :db/lang {:count 2},
+  :db/fulltext {:count 2},
+  :db/cardinality {:count 33},
+  :db/doc {:count 48},
+  :db/ident {:count 67},
+  :db/code {:count 2},
+  :db.install/valueType {:count 16},
+  :db.install/function {:count 2},
+  :db.install/partition {:count 3},
+  :db.install/attribute {:count 33},
+  :fressian/tag {:count 16}}}
+```
+
+If you're running Datomic as a separate process (you should, for any serious stuff), remove `(future (dpm/up))` from `start` to just wait. You can use `dpm up` to start it if you have [dpm](https://github.com/filipesilva/datomic-pro-manager) installed globally.
