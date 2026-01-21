@@ -6,7 +6,19 @@ Invoked vars run in [Clojure](https://clojure.org) if there's a `deps.edn`, othe
 
 Commands will automatically connect to an existing [nREPL server](https://nrepl.org/nrepl/index.html) if available using `.nrepl-port`. The `nvk http` and `nvk repl` commands start a nREPL server that can be connected to.
 
+Invoker aims to make the following usecases easy:
+- making a simple webapp from scratch
+- running functions and inspecting atoms inside an existing process
+- running targetted tests with reloaded code
+- allowing agents to interact with your clojure process
+- adding dependencies and reloading code without restarting the process
+
+The invoker:
+
 ![It's magic. I ain't gotta explain shit.](its-magic.jpg)
+
+
+## CLI
 
 Given `src/app.clj`:
 
@@ -19,9 +31,6 @@ Given `src/app.clj`:
   [x y & {:as opts}]
   [x y opts])
 ```
-
-
-## CLI
 
 You can invoke it with the `nvk` CLI, using the fully qualified name or separated by spaces, and passing `opts` using keywords or flags:
 
