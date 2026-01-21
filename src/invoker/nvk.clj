@@ -164,7 +164,8 @@
  :aliases   \":dev\"}"] "\n\n"
 
    "Github: " [:blue "https://github.com/filipesilva/invoker"] "\n"
-   "Local README: "[:blue (str utils/invoker-global-dir "/README.md")] "\n"))
+   "Local README: "[:blue (str utils/invoker-global-dir "/README.md")] "\n"
+   "Version: " (str (utils/invoker-coord)) "\n"))
 
 (defn command [spec {:as cmd, :keys [opts args]}]
   (cond
