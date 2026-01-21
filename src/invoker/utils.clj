@@ -156,7 +156,7 @@
    ".json" :application/json
    ".yaml" :application/yaml
    ".html" :text/html
-   ".text" :text/text})
+   ".txt"  :text/plain})
 
 (def mime-wildcard-defaults
   {:*/* :application/edn})
