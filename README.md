@@ -97,6 +97,7 @@ To install Invoker you will need:
 - bbin: https://github.com/babashka/bbin#installation
 
 Then run `bbin install io.github.filipesilva/invoker` to install Invoker as `nvk`.
+Run the same command again to update.
 Uninstall with `bbin uninstall nvk`.
 
 You can install a custom Invoker by cloning this repo and running `bbin install .`.
