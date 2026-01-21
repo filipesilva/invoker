@@ -44,7 +44,16 @@
 
 (def devtools-installed? (atom false))
 
+(defn set-dynamic-classloader!
+  "Set dynamic classloader to current thread."
+  []
+  (->> (Thread/currentThread)
+       (.getContextClassLoader)
+       (clojure.lang.DynamicClassLoader.)
+       (.setContextClassLoader (Thread/currentThread))))
+
 (defn devtools []
+  (set-dynamic-classloader!)
   (try-bool ((requiring-resolve 'clojure+.print/install!)))
   (try-bool ((requiring-resolve 'clojure+.error/install!)))
   (try-bool ((requiring-resolve 'clojure+.test/install!)))
