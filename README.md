@@ -102,6 +102,9 @@ Uninstall with `bbin uninstall nvk`.
 
 You can install a custom Invoker by cloning this repo and running `bbin install .`.
 
+Now you should have a `nvk` binary in your CLI.
+Calling it with no arguments shows help.
+
 
 ## Content Negotiation
 
@@ -250,7 +253,7 @@ Like all other `nvk` commands, they will connect to an existing nREPL if availab
 
 ## Configuration
 
-You can configure `nvk` commands by passing options before the command
+You can configure `nvk` commands by passing options before the command:
 
 ```
 Usage: nvk <options>* <command> <args>*
