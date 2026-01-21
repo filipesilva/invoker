@@ -92,9 +92,9 @@ user=> (app/my-fn 1 2 :a 3)
 ## Installation
 
 To install Invoker you will need:
-- Clojure: https://clojure.org/guides/install_clojure
-- Babashka: https://github.com/babashka/babashka#installation
-- bbin: https://github.com/babashka/bbin#installation
+- Clojure 1.12+: https://clojure.org/guides/install_clojure
+- Babashka 1.12+: https://github.com/babashka/babashka#installation
+- bbin 0.2.3+: https://github.com/babashka/bbin#installation
 
 Then run `bbin install io.github.filipesilva/invoker` to install Invoker as `nvk`.
 Run the same command again to update.
