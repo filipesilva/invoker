@@ -138,6 +138,54 @@ $ curl localhost/app/my-fn/1/2.json -d '{"a": 3}'
 } ]
 ```
 
+Invoker supports the following MIME types out of the box:
+- "application/edn" as ".edn"
+- "application/json" as ".json"
+- "application/yaml" as ".yaml"
+- "text/html" as ".html"
+- "text/plain" as ".txt"
+
+HTML will be rendered from [Hiccup](https://github.com/weavejester/hiccup).
+
+``` clojure
+(defn index
+  {:invoker/http true}
+  []
+  [:h1 "Hello World!"])
+```
+
+``` sh
+$ curl localhost/app/index
+[:h1 "Hello World!"]
+$ curl localhost/app/index.html
+<h1>Hello World!</h1>
+```
+
+You can add a content-negotiated pre-render step to functions via metadata.
+This allows you to return objects for API consumers, and HTML for browser consumers.
+
+``` clojure
+(defn render-todo
+  [{:keys [done content]}]
+  [:div
+   [:h1 content [:input {:type :checkbox, :checked done}]]])
+
+(defn todo
+  {:invoker/http true
+   :invoker/pre-render {:text/html render-todo}}
+  []
+  {:id      42
+   :done    false
+   :content "foo the bar"})
+```
+
+``` sh
+$ curl localhost/app/todo
+{:id 42, :done false, :content "foo the bar"}
+$ curl localhost/app/todo.html
+<div><h1>foo the bar<input type="checkbox" /></h1></div>
+```
+
 
 ## Tests
 
