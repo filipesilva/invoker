@@ -38,7 +38,8 @@
                   'nrepl.server/start-server)]
     ((requiring-resolve server') {:port repl-port, :quiet true})
     (utils/write-port-file ".nrepl-port" repl-port)
-    (println (str "Started nREPL server at localhost:" repl-port)))
+    (println (str "Started nREPL server at localhost:" repl-port))
+    ((requiring-resolve 'invoker.cli/restart)))
   @(promise))
 
 (defn server-process [{:keys [repl-port dialect]}]

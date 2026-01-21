@@ -343,10 +343,8 @@
   {;; Metadata is workaround for how bb -x doesn't parse edn args like clj -X.
    :org.babashka/cli {:coerce {:sym :symbol, :cmd :edn}}}
   [{:keys [sym cmd]}]
-  (let [{:keys [devtools stop start]} (:opts cmd)]
-    (when devtools ((requiring-resolve devtools)))
-    (when stop ((requiring-resolve stop)))
-    (when start ((requiring-resolve start))))
+  (let [{:keys [devtools]} (:opts cmd)]
+    (when devtools ((requiring-resolve devtools))))
   ((requiring-resolve sym) cmd))
 
 (defn git-sha-describe []

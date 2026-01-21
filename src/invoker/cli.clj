@@ -169,8 +169,6 @@
   []
   (let [stop (-> *cmd* :opts :stop)
         start (-> *cmd* :opts :start)]
-    (when-not (or stop start)
-      (throw (ex-info "No start or stop symbols provided" *cmd*)))
     (when stop ((requiring-resolve stop)))
     (when start ((requiring-resolve start)))))
 

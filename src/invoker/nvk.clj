@@ -46,9 +46,9 @@
    [:reload          {:desc    "Reload changed files before invoking fn via CLI"
                       :coerce  :boolean
                       :alias   :r}]
-   [:start           {:desc    "Start fn to call on process setup or nvk restart"
+   [:start           {:desc    "Start fn to call on nREPL server start  or nvk restart"
                       :coerce  :symbol}]
-   [:stop            {:desc    "Stop fn to call on process setup or nvk restart"
+   [:stop            {:desc    "Stop fn to call on nREPL server start or nvk restart"
                       :coerce  :symbol}]
    [:ns-default      {:desc    "Default namespace for var resolution"
                       :coerce  :symbol
