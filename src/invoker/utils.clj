@@ -334,8 +334,9 @@
   ((requiring-resolve sym) cmd))
 
 (defn git-sha-describe []
-  (let [sha (str/trim (:out (process/sh "git rev-parse HEAD")))
-        out (str/trim (:out (process/sh "git describe --tags --dirty --always --long")))
+  (let [opts {:dir invoker-global-dir}
+        sha (str/trim (:out (process/sh opts "git rev-parse HEAD")))
+        out (str/trim (:out (process/sh opts "git describe --tags --dirty --always --long")))
         re #"^(?:(.+)-(\d+)-g)?([0-9a-f]+)(-dirty)?$"
         [ _ tag ahead short-sha dirty] (re-matches re out)]
     {:sha sha, :tag tag, :short-sha short-sha, :ahead (parse-long ahead), :dirty (boolean dirty)}))
