@@ -370,9 +370,13 @@
         ensure-invoker `(when-not (try
                                     (requiring-resolve 'invoker.cli/invoke)
                                     (catch Exception _# nil))
-                          ((requiring-resolve 'clojure.repl.deps/add-lib)
-                           'io.github.filipesilva/invoker
-                           ~(invoker-coord)))
+                          (let [coord# ~(invoker-coord)]
+                            (binding [*out* *err*]
+                              (println "Adding invoker dep to current process via clojure.repl.deps/add-lib:")
+                              (println 'io.github.filipesilva/invoker coord#)
+                              (flush))
+                            ((requiring-resolve 'clojure.repl.deps/add-lib)
+                             'io.github.filipesilva/invoker coord#)))
         expr           (format "%s ((requiring-resolve '%s) '%s)" ensure-invoker sym cmd)
         ret            (try (nrepl-client/eval-expr {:port port :expr expr})
                             (catch java.net.ConnectException _
