@@ -175,7 +175,7 @@
     (empty? args)
     (help spec)
 
-    (and (= "repl" (first args))
+    (and (#{"repl" "add-lib" "sync-deps"} (first args))
          (= 'invoker.cli (:ns-default opts)))
     (utils/exec :clj 'invoker.cli/invoke cmd)
 
