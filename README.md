@@ -139,11 +139,11 @@ $ curl localhost/app/my-fn/1/2.json -d '{"a": 3}'
 ```
 
 Invoker supports the following MIME types out of the box:
-- "application/edn" as ".edn"
-- "application/json" as ".json"
-- "application/yaml" as ".yaml"
-- "text/html" as ".html"
-- "text/plain" as ".txt"
+- `application/edn` as `.edn`
+- `application/json` as `.json`
+- `application/yaml` as `.yaml`
+- `text/html` as `.html`
+- `text/plain` as `.txt`
 
 HTML will be rendered from [Hiccup](https://github.com/weavejester/hiccup).
 
