@@ -279,7 +279,7 @@
 
 ;; nvk invoker-test e2e
 (defn e2e []
-  (let [opts {:dir "examples"}
+  (let [opts {:dir "examples/simple"}
         cmd-out #(str/includes? (:out (process/sh opts %1)) %2)
         cmd-err #(str/includes? (:err (process/sh opts %1)) %2)]
 

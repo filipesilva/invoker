@@ -1,0 +1,4 @@
+{:deps {com.datomic/peer {:mvn/version "1.0.7482"}
+        org.xerial/sqlite-jdbc {:mvn/version "3.51.1.0"}
+        io.github.filipesilva/datomic-pro-manager {:git/tag "v1.0.4", :git/sha "d9470d4b2cdc67d4f583fb1b1e94d08935b67128", :git/url "https://github.com/filipesilva/datomic-pro-manager.git"} 
+        org.slf4j/slf4j-nop {:mvn/version "2.1.0-alpha1"}}}
