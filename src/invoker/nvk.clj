@@ -14,6 +14,8 @@
                       :coerce :boolean}]
    [:version         {:desc   "Show version"
                       :coerce :boolean}]
+   [:skill           {:desc   "Print README.md with Claude SKILL.md metadata"
+                      :coerce :boolean}]
    [:config          {:desc    "Invoker defaults config file"
                       :coerce  :string
                       :alias   :c
@@ -167,10 +169,20 @@
    "Local README: "[:blue (str utils/invoker-global-dir "/README.md")] "\n"
    "Version: " (str (utils/invoker-coord)) "\n"))
 
+(defn skill []
+  (println "---
+name: nvk
+description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clojure.
+---\n")
+  (println (slurp (str utils/invoker-global-dir "/README.md"))))
+
 (defn command [spec {:as cmd, :keys [opts args]}]
   (cond
     (:version opts)
     (println (utils/invoker-coord))
+
+    (:skill opts)
+    (skill)
 
     (empty? args)
     (help spec)

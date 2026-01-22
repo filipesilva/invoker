@@ -324,7 +324,7 @@ In your `src/app.clj` add:
    [filipesilva.datomic-pro-manager :as dpm]))
 
 (def db-uri "datomic:sql://app?jdbc:sqlite:./storage/sqlite.db")
-(def *conn (atom nil))
+(defonce *conn (atom nil))
 
 (defn start []
   (future (dpm/up))
@@ -382,3 +382,17 @@ $ curl localhost/app/db-stats
 ```
 
 If you're running Datomic as a separate process (you should, for any serious stuff), remove `(future (dpm/up))` from `start` to just wait. You can use `dpm up` to start it if you have [dpm](https://github.com/filipesilva/datomic-pro-manager) installed globally.
+
+
+## Claude SKILL.md
+
+You can output this README.md with Claude skill metadata using `nvk --skill`.
+
+Then you can output it to your global skills directory to teach Claude Code how to use `nvk`:
+
+``` clojure
+$ mkdir -p ~/.claude/skills/nvk
+$ nvk --skill > ~/.claude/skills/nvk/SKILL.md
+```
+
+Now you should be able to prompt something like `make a basic blog using nvk and datomic` and it should just work.
