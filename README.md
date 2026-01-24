@@ -114,6 +114,8 @@ You can install a custom Invoker by cloning this repo and running `bbin install 
 Now you should have a `nvk` binary in your CLI.
 Calling it with no arguments shows help.
 
+Some `nvk` commands use `git` and `ssh`.
+
 
 ## Content Negotiation
 
@@ -267,29 +269,31 @@ You can configure `nvk` commands by passing options before the command:
 ```
 Usage: nvk <options>* <command> <args>*
 
-       --help                                  Show doc for var
-       --version                               Show version
-  -c,  --config       nvk.edn                  Invoker defaults config file
-  -e,  --ext                                   Extension shorthand (.edn/.json/.yaml/.html/.txt) for content-type/accept MIME types
-  -ct, --content-type                          MIME type for body (last arg or piped input) on CLI content negotiation
-  -ac, --accept       application/edn          MIME types accepted on CLI content negotiation, use with :invoker/render metadata
-       --extensions   invoker.utils/extensions Map of extension to MIME type
-       --parse        invoker.utils/parse      Map of MIME type to parsing fn
-       --render       invoker.utils/render     Map of MIME type to rendering fn
-  -d,  --dialect      :bb                      Clojure (clj) or Babashka (bb), defaults to clj if there's a deps.edn
-       --devtools     invoker.utils/devtools   Developer tools fn to call on process setup or nvk devtools
-  -r,  --reload                                Reload changed files before invoking fn via CLI
-       --start                                 Start fn to call on process setup or nvk restart
-       --stop                                  Stop fn to call on process setup or nvk restart
-  -nd, --ns-default   invoker.cli              Default namespace for var resolution
-  -na, --ns-aliases                            Map of alias to namespace for var resolution
-  -ha, --http-all     false                    Expose vars without :invoker/http in the HTTP server
-  -hp, --http-port    80                       Port for HTTP server, written to .http-port
-  -hh, --http-handler invoker.http/handler     Ring handler fn for HTTP server
-  -rp, --repl-port    0                        Port for nREPL server creation, 0 for random
-  -rc, --repl-connect                          nREPL server address to connect on, defaults to content of .nrepl-port file if present and port is taken
-  -a,  --aliases                               Aliases to call Clojure with, does nothing with Babashka
-  -et, --ex-trace     false                    Include stack trace on exception
+        --help                                     Show doc for var
+        --version                                  Show version
+        --skill                                    Print README.md with Claude SKILL.md metadata
+  -c,   --config          nvk.edn                  Invoker defaults config file
+  -e,   --ext                                      Extension shorthand (.edn/.json/.yaml/.html/.txt) for content-type/accept MIME types
+  -ct,  --content-type                             MIME type for body (last arg or piped input) on CLI content negotiation
+  -ac,  --accept          application/edn          MIME types accepted on CLI content negotiation, use with :invoker/render metadata
+        --extensions      invoker.utils/extensions Map of extension to MIME type
+        --parse           invoker.utils/parse      Map of MIME type to parsing fn
+        --render          invoker.utils/render     Map of MIME type to rendering fn
+  -d,   --dialect         :clj                     Clojure (clj) or Babashka (bb), defaults to clj if there's a deps.edn
+        --devtools        invoker.utils/devtools   Developer tools fn to call on process setup or nvk devtools
+  -r,   --reload                                   Reload changed files before invoking fn via CLI
+        --start           app/start                Start fn to call on nREPL server start  or nvk restart
+        --stop                                     Stop fn to call on nREPL server start or nvk restart
+  -nd,  --ns-default      invoker.cli              Default namespace for var resolution
+  -na,  --ns-aliases                               Map of alias to namespace for var resolution
+  -ha,  --http-all        false                    Expose vars without :invoker/http in the HTTP server
+  -hp,  --http-port       80                       Port for HTTP server, written to .http-port
+  -hh,  --http-handler    invoker.http/handler     Ring handler fn for HTTP server
+  -rp,  --repl-port       0                        Port for nREPL server creation, 0 for random
+  -rc,  --repl-connect                             nREPL server address to connect on, defaults to content of .nrepl-port file if present and port is taken
+  -rgr, --repl-git-remote                          Git remote name to use for nREPL connection
+  -a,   --aliases                                  Aliases to call Clojure with, does nothing with Babashka
+  -et,  --ex-trace        false                    Include stack trace on exception
 ```
 
 You can set custom defaults for options in `nvk.edn`:
@@ -382,6 +386,63 @@ $ curl localhost/app/db-stats
 ```
 
 If you're running Datomic as a separate process (you should, for any serious stuff), remove `(future (dpm/up))` from `start` to just wait. You can use `dpm up` to start it if you have [dpm](https://github.com/filipesilva/datomic-pro-manager) installed globally.
+
+
+## Deploy
+
+You can deploy a `nvk` app to a remote server and interact with it with very little fuss, using little more than `git` and `ssh`.
+
+Setup a git repository on `user@server` with [receive.denyCurrentBranch](https://git-scm.com/docs/git-config#Documentation/git-config.txt-receivedenyCurrentBranch) set to `updateInstead`. 
+This will cause pushes to the checked out branch to update the files.
+``` sh
+$ ssh user@server
+$ mkdir -p ~/repos/app
+$ cd ~/repos/app
+$ git config receive.denyCurrentBranch updateInstead
+```
+
+Add the the ssh server and path to your local repository and push it.
+Whenever you push the server branch the files will be updated.
+``` sh
+$ git remote add server user@server:~/repos/app
+$ git push server
+```
+
+Back on the server, use [nohup](https://en.wikipedia.org/wiki/Nohup) to start a persistent background `nvk http` process that logs output to `nohup.out`
+``` sh
+$ ssh user@server
+$ cd ~/repos/app
+$ nohup nvk http &
+appending output to nohup.out
+$ exit
+```
+
+Invoker's `--repl-git-remote`/`-rgr` option takes a git remote name and uses it to look up the nREPL port on that server, create a ssh forward tunnel to it, connect nREPL to your app, and run commands.
+
+You can use it to run commands on the server or inspect its state:
+
+``` sh
+$ nvk --repl-git-remote server app db-stats
+```
+
+To redeploy with zero downtime `push`, `sync-deps`, and `reload`:
+
+``` sh
+$ git push server
+$ nvk --repl-git-remote server sync-deps
+Forwarding localhost:61504 to user@server:53663...
+nil
+$ nvk --repl-git-remote server reload
+Forwarding localhost:61522 to user@server:53663...
+Nothing to unload
+Nothing to reload
+{:unloaded [], :loaded []}
+```
+
+It is possible for `sync-deps` to fail is dependencies conflict. 
+In that case you will have kill the `nvk http` server process with `nvk exit` (or any other way) then restart it like before with `nohup`.
+
+You can also make your own ssh tunnel and set the port on `--nrepl-connect`.
 
 
 ## Claude SKILL.md

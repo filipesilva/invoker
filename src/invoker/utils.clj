@@ -26,7 +26,10 @@
     "Cannot negotiate content-type mime-type"
     "Cannot negotiate accept mime-type"
     "Cannot connect to nREPL server"
-    "nREPL server exited"})
+    "nREPL server exited"
+    "Git remote not found"
+    "Cannot parse git remote URL"
+    "Failed to read .nrepl-port from remote"})
 
 (defmacro try-bool
   [expr]
@@ -375,31 +378,66 @@
   [sym cmd]
   (apply process/exec (exec-args (-> cmd :opts :dialect) sym cmd)))
 
+(defn repl-git-remote-connect
+  "Given a git remote name, parse its URL, SSH to read .nrepl-port,
+   and start an SSH tunnel. Returns localhost:port for the tunnel."
+  [remote-name]
+  (let [git-result       (process/sh "git" "remote" "get-url" remote-name)
+        _                (when-not (zero? (:exit git-result))
+                           (throw (ex-info "Git remote not found" {:remote remote-name})))
+        url              (str/trim (:out git-result))
+        [user host path] (or
+                          ;; user@host:path or ssh://user@host/path
+                          (when-let [[_ user host path] (re-matches #"([^@]+)@([^:]+):(.+)" url)]
+                            [user host path])
+                          (when-let [[_ user host path] (re-matches #"ssh://([^@]+)@([^/]+)/(.+)" url)]
+                            [user host path])
+                          (throw (ex-info "Cannot parse git remote URL" {:url url})))
+        ssh-target       (str user "@" host)
+        ssh-result       (process/sh "ssh" ssh-target (str "cat " path "/.nrepl-port"))
+        _                (when-not (zero? (:exit ssh-result))
+                           (throw (ex-info "Failed to read .nrepl-port from remote"
+                                           {:remote remote-name :path path :error (str/trim (:err ssh-result))})))
+        nrepl-port       (parse-long (str/trim (:out ssh-result)))
+        local-port       (port-or-random 0)
+        repl-connect     (str "localhost:" local-port)]
+    (binding [*out* *err*]
+      (println (format "Forwarding %s to %s:%s..." repl-connect ssh-target nrepl-port)))
+    (process/process ["ssh -L" (str local-port ":localhost:" nrepl-port) ssh-target])
+    (wait-for-port local-port)
+    repl-connect))
+
 (defn connect
   [sym cmd]
-  (let [[host port]    (-> cmd :opts :repl-connect (str/split #":"))
-        cmd            (update cmd :opts assoc :exit false)
-        ensure-invoker `(when-not (try
-                                    (requiring-resolve 'invoker.cli/invoke)
-                                    (catch Exception _# nil))
-                          (let [coord# ~(invoker-coord)]
-                            (binding [*out* *err*]
-                              (println "Adding invoker dep to current process via clojure.repl.deps/add-lib:")
-                              (println 'io.github.filipesilva/invoker coord#)
-                              (flush))
-                            ((requiring-resolve 'clojure.repl.deps/add-lib)
-                             'io.github.filipesilva/invoker coord#)))
+  (let [repl-git-remote (-> cmd :opts :repl-git-remote)
+        repl-connect    (if repl-git-remote
+                          (repl-git-remote-connect repl-git-remote)
+                          (-> cmd :opts :repl-connect))
+        cmd             (assoc-in cmd [:opts :repl-connect] repl-connect)
+        [host port]     (str/split repl-connect #":")
+        cmd             (update cmd :opts assoc :exit false)
+        ensure-invoker  `(when-not (try
+                                     (requiring-resolve 'invoker.cli/invoke)
+                                     (catch Exception _# nil))
+                           (let [coord# ~(invoker-coord)]
+                             (binding [*out* *err*]
+                               (println "Adding invoker dep to current process via clojure.repl.deps/add-lib:")
+                               (println 'io.github.filipesilva/invoker coord#)
+                               (flush))
+                             ((requiring-resolve 'clojure.repl.deps/add-lib)
+                              'io.github.filipesilva/invoker coord#)))
         ensure-devtools `((requiring-resolve 'invoker.utils/ensure-devtools))
-        expr           (format "%s %s ((requiring-resolve '%s) '%s)" ensure-invoker ensure-devtools sym cmd)
-        ret            (try (nrepl-client/eval-expr {:port port :expr expr})
-                            (catch java.net.ConnectException _
-                              (throw (ex-info "Cannot connect to nREPL server" {:host host, :port port})))
-                            (catch java.io.EOFException _
-                              (throw (ex-info "nREPL server exited" {:host host, :port port}))))]
+        expr            (format "%s %s ((requiring-resolve '%s) '%s)" ensure-invoker ensure-devtools sym cmd)
+        ret             (try (nrepl-client/eval-expr {:port port :expr expr})
+                             (catch java.net.ConnectException _
+                               (throw (ex-info "Cannot connect to nREPL server" {:host host, :port port})))
+                             (catch java.io.EOFException _
+                               (throw (ex-info "nREPL server exited" {:host host, :port port}))))]
     (System/exit (-> ret :vals last edn/read-string :exit-code (or 0)))))
 
 (defn connect-or-exec [sym cmd]
-  (if (-> cmd :opts :repl-connect)
+  (if (or (-> cmd :opts :repl-connect)
+          (-> cmd :opts :repl-git-remote))
     (connect sym cmd)
     (exec sym cmd)))
 
@@ -408,3 +446,4 @@
 (defmacro when-not-bb? [& body]
   (when-not bb?
     `(do ~@body)))
+

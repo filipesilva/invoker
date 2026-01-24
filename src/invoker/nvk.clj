@@ -78,6 +78,9 @@
    [:repl-connect    {:desc   "nREPL server address to connect on, defaults to content of .nrepl-port file if present and port is taken"
                       :coerce :string
                       :alias  :rc}]
+   [:repl-git-remote {:desc   "Git remote name to use for nREPL connection"
+                      :coerce :string
+                      :alias  :rgr}]
    [:aliases         {:desc   "Aliases to call Clojure with, does nothing with Babashka"
                       :coerce :string
                       :alias  :a}]
@@ -235,32 +238,7 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
         (throw e)))))
 
 ;; TODO: now
-;; - connect to remote repl
-;;   - reverse ssh or something
-;;   - could I use gits remote config?
-;;     - git push server
-;;     - nvk --remote=server repl
-;;     - nvk -r server reload
-;;     - nvk -r server app state
-;;   - this depends on actually being able to push there...
-;;   - but it also carries information about the directory, sort of
-;;   - yeah should work
-;;     - on server
-;;       - install clojure, bb, nvk
-;;       - mkdir ~/myrepo
-;;       - cd ~/myrepo
-;;       - git init
-;;       - git config receive.denyCurrentBranch updateInstead
-;;       - wait for push
-;;       - nohup nvk http &
-;;     - on local
-;;       - git remote add server user@server:~/myrepo
-;;       - git push server master
-;;       - nvk -r server reload
-;;     - should I have some sort of --detached option?
-;;       - so I can start http/repl in the background
-;;       - can do it with `nohup cmd args &`, and stdout+stderr end up in nohup.out
-;;       - I think I need the detached, because on a normal server you can't just leave a terminal open
+;; -
 
 ;; TODO: maybe
 ;; - markdown parse/render
