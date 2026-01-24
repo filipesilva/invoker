@@ -372,10 +372,8 @@
       :bb  ["bb"      "-Sdeps" deps "-x"    'invoker.utils/process-setup :sym sym, :cmd cmd])))
 
 (defn exec
-  ([sym cmd]
-   (exec (-> cmd :opts :dialect) sym cmd))
-  ([dialect sym m]
-   (apply process/exec (exec-args dialect sym m))))
+  [sym cmd]
+  (apply process/exec (exec-args (-> cmd :opts :dialect) sym cmd)))
 
 (defn connect
   [sym cmd]

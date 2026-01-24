@@ -6,6 +6,7 @@ tmp/
 .http-port
 .cpcache
 .clj-kondo
+nohup.out
 examples/datomic/datomic-pro
 examples/datomic/storage
 examples/datomic/backups

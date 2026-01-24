@@ -176,6 +176,14 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
 ---\n")
   (println (slurp (str utils/invoker-global-dir "/README.md"))))
 
+(defn maybe-force-clj-exec [{:as cmd, :keys [opts args]}]
+  (if (and (#{"repl" "add-lib" "sync-deps"} (first args))
+           (= 'invoker.cli (:ns-default opts)))
+    (-> cmd
+        (assoc-in [:opts :dialect] :clj)
+        (assoc-in [:opts :repl-connect] nil))
+    cmd))
+
 (defn command [spec {:as cmd, :keys [opts args]}]
   (cond
     (:version opts)
@@ -187,12 +195,8 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
     (empty? args)
     (help spec)
 
-    (and (#{"repl" "add-lib" "sync-deps"} (first args))
-         (= 'invoker.cli (:ns-default opts)))
-    (utils/exec :clj 'invoker.cli/invoke cmd)
-
     :else
-    (utils/connect-or-exec 'invoker.cli/invoke cmd)))
+    (utils/connect-or-exec 'invoker.cli/invoke (maybe-force-clj-exec cmd))))
 
 (defn update-default [defaults [k m]]
   (if-some [default (k defaults)]
@@ -231,7 +235,32 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
         (throw e)))))
 
 ;; TODO: now
-;; -
+;; - connect to remote repl
+;;   - reverse ssh or something
+;;   - could I use gits remote config?
+;;     - git push server
+;;     - nvk --remote=server repl
+;;     - nvk -r server reload
+;;     - nvk -r server app state
+;;   - this depends on actually being able to push there...
+;;   - but it also carries information about the directory, sort of
+;;   - yeah should work
+;;     - on server
+;;       - install clojure, bb, nvk
+;;       - mkdir ~/myrepo
+;;       - cd ~/myrepo
+;;       - git init
+;;       - git config receive.denyCurrentBranch updateInstead
+;;       - wait for push
+;;       - nohup nvk http &
+;;     - on local
+;;       - git remote add server user@server:~/myrepo
+;;       - git push server master
+;;       - nvk -r server reload
+;;     - should I have some sort of --detached option?
+;;       - so I can start http/repl in the background
+;;       - can do it with `nohup cmd args &`, and stdout+stderr end up in nohup.out
+;;       - I think I need the detached, because on a normal server you can't just leave a terminal open
 
 ;; TODO: maybe
 ;; - markdown parse/render
@@ -352,8 +381,6 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
 ;;       - DELETE /invoker/examples   -> (invoker.examples/delete! opts)
 ;;     - how to distinguish between query and fetch? maybe just leave one of them?
 ;;     - maybe PUT remains without a mapping
-;; - connect to remote repl
-;;   - reverse ssh or something
 ;; - fetch
 ;;   - fetch (http) command, and expose the lib, uses xformers to get edn, takes auth header too
 ;;   - nvk -ct application/edn -ac application/edn fetch localhost invoker.examples/args 1 2 {:a 1}
