@@ -408,7 +408,7 @@ $ git remote add server user@server:~/repos/app
 $ git push server
 ```
 
-Back on the server, use [nohup](https://en.wikipedia.org/wiki/Nohup) to start a persistent background `nvk http` process that logs output to `nohup.out`
+Back on the server, use [nohup](https://en.wikipedia.org/wiki/Nohup) to start a persistent background `nvk http` process that logs output to `nohup.out`.
 ``` sh
 $ ssh user@server
 $ cd ~/repos/app
@@ -422,7 +422,9 @@ Invoker's `--repl-git-remote`/`-rgr` option takes a git remote name and uses it 
 You can use it to run commands on the server or inspect its state:
 
 ``` sh
-$ nvk --repl-git-remote server app db-stats
+$ nvk --repl-git-remote server app state
+Forwarding localhost:61754 to user@server:53663...
+{:foo 42}
 ```
 
 To redeploy with zero downtime `push`, `sync-deps`, and `reload`:
@@ -439,7 +441,7 @@ Nothing to reload
 {:unloaded [], :loaded []}
 ```
 
-It is possible for `sync-deps` to fail is dependencies conflict. 
+It is possible for `sync-deps` to fail if dependencies conflict.
 In that case you will have kill the `nvk http` server process with `nvk exit` (or any other way) then restart it like before with `nohup`.
 
 You can also make your own ssh tunnel and set the port on `--nrepl-connect`.
