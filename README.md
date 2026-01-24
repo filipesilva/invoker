@@ -393,7 +393,7 @@ If you're running Datomic as a separate process (you should, for any serious stu
 You can deploy a `nvk` app to a remote server and interact with it with very little fuss, using little more than `git` and `ssh`.
 
 Setup a git repository on `user@server` with [receive.denyCurrentBranch](https://git-scm.com/docs/git-config#Documentation/git-config.txt-receivedenyCurrentBranch) set to `updateInstead`. 
-This will cause pushes to the checked out branch to update the files.
+This will cause pushes to the checked out branch to update the files unless there's any uncommited changes.
 ``` sh
 $ ssh user@server
 $ mkdir -p ~/repos/app
@@ -427,7 +427,7 @@ Forwarding localhost:61754 to user@server:53663...
 {:foo 42}
 ```
 
-To redeploy with zero downtime `push`, `sync-deps`, and `reload`:
+To redeploy with zero downtime `push`, `sync-deps` (if deps changed), and `reload`:
 
 ``` sh
 $ git push server
@@ -436,9 +436,9 @@ Forwarding localhost:61504 to user@server:53663...
 nil
 $ nvk --repl-git-remote server reload
 Forwarding localhost:61522 to user@server:53663...
-Nothing to unload
-Nothing to reload
-{:unloaded [], :loaded []}
+Unloading app
+Loading app
+{:unloaded [app], :loaded [app]}
 ```
 
 It is possible for `sync-deps` to fail if dependencies conflict.
@@ -460,3 +460,21 @@ $ nvk --skill > ~/.claude/skills/nvk/SKILL.md
 ```
 
 Now you should be able to prompt something like `make a basic blog using nvk and datomic` and it should just work.
+
+
+## .gitignore
+
+Below are all the temporary files used by `nvk` or `dpm` in the examples so you can add them to your `.gitignore`:
+``` sh
+# nvk
+.rebel_readline_history
+.nrepl-port
+.http-port
+.cpcache
+.clj-kondo
+nohup.out
+# dpm
+datomic-pro
+storage
+backups
+```
