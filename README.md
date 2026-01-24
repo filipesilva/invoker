@@ -445,6 +445,7 @@ It is possible for `sync-deps` to fail if dependencies conflict.
 In that case you will have kill the `nvk http` server process with `nvk exit` (or any other way) then restart it like before with `nohup`.
 
 You can also make your own ssh tunnel and set the port on `--nrepl-connect`.
+You don't even need to have started the app with `nvk`, since it installs itself on the process when connecting.
 
 
 ## Claude SKILL.md
