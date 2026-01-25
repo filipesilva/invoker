@@ -253,6 +253,7 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
 ;;   - shouldn't start a new process... I think?
 ;;     - maybe can replace itself with clj?
 ;;   - should be able to take nvk options somehow
+;;   - should replace default ns
 
 ;; TODO: maybe
 ;; - markdown parse/render
