@@ -180,11 +180,20 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
   (println (slurp (str utils/invoker-global-dir "/README.md"))))
 
 (defn maybe-force-clj-exec [{:as cmd, :keys [opts args]}]
-  (if (and (#{"repl" "add-lib" "sync-deps"} (first args))
-           (= 'invoker.cli (:ns-default opts)))
-    (-> cmd
-        (assoc-in [:opts :dialect] :clj)
-        (assoc-in [:opts :repl-connect] nil))
+  (if (= 'invoker.cli (:ns-default opts))
+    (cond-> cmd
+      ;; repl is special, it's always exec, then connects itself
+      (#{"repl"} (first args))
+      (assoc-in [:opts :force-exec] true)
+
+      ;; these are clj-only
+      (#{"repl" "add-lib" "sync-deps"} (first args))
+      (assoc-in [:opts :dialect] :clj)
+
+      ;; these should still work if called from bb, they just won't connect
+      (and (#{"add-lib" "sync-deps"} (first args))
+           (not= :clj (-> cmd :opts :dialect)))
+      (assoc-in [:opts :repl-connect] nil))
     cmd))
 
 (defn command [spec {:as cmd, :keys [opts args]}]
