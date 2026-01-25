@@ -403,7 +403,7 @@
           local-port       (port-or-random 0)
           repl-connect     (str "localhost:" local-port)]
       (binding [*out* *err*]
-        (println (format "Forwarding %s to %s:%s..." repl-connect ssh-target nrepl-port)))
+        (println (format "Forwarding %s to %s:%s" repl-connect ssh-target nrepl-port)))
       (process/process ["ssh -L" (str local-port ":localhost:" nrepl-port) ssh-target])
       (wait-for-port local-port)
       (assoc-in cmd [:opts :repl-connect] repl-connect))

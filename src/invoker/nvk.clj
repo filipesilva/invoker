@@ -247,7 +247,12 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
         (throw e)))))
 
 ;; TODO: now
-;; -
+;; - bbin mode
+;;   - a way to make your own cli tool
+;;   - install using bbin
+;;   - shouldn't start a new process... I think?
+;;     - maybe can replace itself with clj?
+;;   - should be able to take nvk options somehow
 
 ;; TODO: maybe
 ;; - markdown parse/render
