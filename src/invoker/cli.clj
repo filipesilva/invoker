@@ -126,12 +126,9 @@
                          :libs
                          (get lib)
                          (select-keys [:mvn/version :git/tag :git/sha :git/url]))
-           deps-file (cond
-                       (fs/exists? "deps.edn") "deps.edn"
-                       (fs/exists? "bb.edn")   "bb.edn"
-                       :else                   (do
-                                                 (spit "deps.edn" "{}")
-                                                 "deps.edn"))
+           deps-file "deps.edn"
+           _         (when-not (fs/exists? deps-file)
+                       (spit deps-file "{}"))
            file-zloc (z/of-file deps-file {:track-position? true})
            file-zloc (if (z/get file-zloc :deps)
                        file-zloc
