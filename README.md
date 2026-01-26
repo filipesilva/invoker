@@ -320,7 +320,7 @@ First add these dependencies:
 $ nvk add-lib io.github.filipesilva/datomic-pro-manager
 $ nvk add-lib com.datomic/peer
 $ nvk add-lib org.xerial/sqlite-jdbc
-$ nvk add-lib nvk add-lib org.slf4j/slf4j-nop
+$ nvk add-lib org.slf4j/slf4j-nop
 ```
 
 In your `src/app.clj` add:
