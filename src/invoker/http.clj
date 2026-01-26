@@ -41,7 +41,7 @@
           [args opts']           (utils/parse-raw-args var (into raw-args kv-args))
           body'                  (ruq/body-string req)
           cmd-opts               (select-keys opts [:parse :render :ex-trace])
-          redirect-uri'          (some-> var meta :invoker/http :redirect (redirect-uri args))
+          redirect-uri'          (some-> var meta :invoker/http :redirect (redirect-uri args) (str ext))
           {:keys [exception?
                   exception-str
                   return-str

@@ -262,6 +262,14 @@
            ;; curl localhost/invoker/examples/http-redirect/42
            (http {:uri "invoker.examples/http-redirect/42", :headers {"accept" "text/html"}})))
 
+    (is (= {:status 303, :headers {"Location" "/invoker/examples/argv.edn"}, :body ""}
+           ;; curl localhost/invoker/examples/http-redirect.edn
+           (http {:uri "invoker.examples/http-redirect.edn", :headers {"accept" "text/html"}})))
+
+    (is (= {:status 303, :headers {"Location" "/invoker/examples/argv/42.edn"}, :body ""}
+           ;; curl localhost/invoker/examples/http-redirect/42.edn
+           (http {:uri "invoker.examples/http-redirect/42.edn", :headers {"accept" "text/html"}})))
+
     (is (= {:status 404}
            (http {:uri "foo"})))
     (is (= {:status 500}
