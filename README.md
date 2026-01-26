@@ -334,11 +334,16 @@ In your `src/app.clj` add:
 (def db-uri "datomic:sql://app?jdbc:sqlite:./storage/sqlite.db")
 (defonce *conn (atom nil))
 
+;; https://docs.datomic.com/schema/schema-reference.html
+(def schema
+  [,,,])
+
 (defn start []
   (future (dpm/up))
   (dpm/wait-for-up)
   (d/create-database db-uri)
-  (reset! *conn (d/connect db-uri)))
+  (reset! *conn (d/connect db-uri))
+  @(d/transact @*conn schema))
 
 (defn db-stats
   {:invoker/http true}
