@@ -34,7 +34,7 @@
 (defn invoke [opts {:as req, :keys [uri query-string headers]}]
   (try
     (let [[uri ext]              (uri-and-ext (:extensions opts) uri)
-          var-and-args           (mapv codec/url-decode  (remove empty? (str/split uri #"/")))
+          var-and-args           (mapv codec/url-decode (remove empty? (str/split uri #"/")))
           [var raw-args]         (utils/parse-var-and-args var-and-args)
           _                      (when-not (or (:http-all opts) (-> var meta :invoker/http))
                                    (throw (ex-info "Var not exposed via HTTP" {:var var, :status 404})))
