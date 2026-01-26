@@ -221,7 +221,9 @@
         pre-render          (merge {} (-> var meta :invoker/pre-render))
         ext-type            (-> ext extensions mime-type-str)
         content-type        (or content-type ext-type)
-        accept              (or accept ext-type)
+        accept              (if (and ext-type (= accept "*/*"))
+                              ext-type
+                              (or accept ext-type))
         body-content-type   (or (not content-type)
                                 (not body)
                                 (mime-match content-type parse)
