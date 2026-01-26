@@ -79,6 +79,8 @@ Successful invocations return status 200, exceptions 400, internal server errors
 The HTTP method will be ignored. 
 You can redirect on 200 to another var or string path using metadata: `{:invoker/http {:redirect #'another-fn}}`.
 
+Static files in `resources/public/` will be served directly.
+
 
 ## REPL
 
