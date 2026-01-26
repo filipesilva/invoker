@@ -20,8 +20,10 @@
       [(subs uri 0 (- (count uri) (count ext))) ext]
       [uri nil])))
 
-(defn redirect-uri [x args]
+(defn redirect-uri [x args ret]
   (cond
+    (map? x)    (let [{:keys [to args]} x]
+                  (redirect-uri to (args ret) ret))
     (var? x)    (str "/"
                      (-> x symbol str (str/replace "." "/"))
                      (when (seq args)
@@ -41,9 +43,9 @@
           [args opts']           (utils/parse-raw-args var (into raw-args kv-args))
           body'                  (ruq/body-string req)
           cmd-opts               (select-keys opts [:parse :render :ex-trace])
-          redirect-uri'          (some-> var meta :invoker/http :redirect (redirect-uri args) (str ext))
           {:keys [exception?
                   exception-str
+                  return
                   return-str
                   content-type]} (binding [*req* req]
                                    (utils/invoke (merge {:var          var,
@@ -53,7 +55,8 @@
                                                          :ext          ext
                                                          :content-type (get headers "content-type")
                                                          :accept       (get headers "accept")}
-                                                        cmd-opts)))]
+                                                        cmd-opts)))
+          redirect-uri'          (some-> var meta :invoker/http :redirect (redirect-uri args return) (str ext))]
       (cond
         exception?    {:status       400
                        :content-type content-type

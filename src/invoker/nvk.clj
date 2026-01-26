@@ -248,10 +248,6 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
 
 ;; TODO: now
 ;; - is reload broken on bb?
-;; - how to redirect with new id, like on create?
-;;   - could put redirect args based on ret
-;;   - :redirect {:to #'show, :args (fn [ret] [(:id ret)])}
-;;   - might need to change :redirect to always be map
 ;; - bbin mode
 ;;   - a way to make your own cli tool
 ;;   - install using bbin

@@ -270,6 +270,10 @@
            ;; curl localhost/invoker/examples/http-redirect/42.edn
            (http {:uri "invoker.examples/http-redirect/42.edn", :headers {"accept" "text/html"}})))
 
+    (is (= {:status 303, :headers {"Location" "/invoker/examples/argv/2"}, :body ""}
+           ;; curl localhost/invoker/examples/http-redirect-args
+           (http {:uri "invoker.examples/http-redirect-args", :headers {"accept" "text/html"}})))
+
     (is (= {:status 404}
            (http {:uri "foo"})))
     (is (= {:status 500}

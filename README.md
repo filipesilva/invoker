@@ -77,7 +77,9 @@ Only vars with the `{:invoker/http true}` metadata will be served, unless you us
 
 Successful invocations return status 200, exceptions 400, internal server errors 500.
 The HTTP method will be ignored. 
+
 You can redirect on 200 to another var or string path using metadata: `{:invoker/http {:redirect #'another-fn}}`.
+Redirects will use the same arguments as the original request, but you can use the map form with a `:args` key as a function over the return: `{:invoker/http {:redirect {:to #'another-fn, :args (fn [ret] (:id ret))}}}`.
 
 Static files in `resources/public/` will be served directly.
 

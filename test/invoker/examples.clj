@@ -49,3 +49,7 @@
   []
   1)
 
+(defn http-redirect-args
+  {:invoker/http {:redirect {:to #'argv, :args (fn [ret] [ret])}}}
+  []
+  2)
