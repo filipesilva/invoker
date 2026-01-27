@@ -247,7 +247,13 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
         (throw e)))))
 
 ;; TODO: now
+;; - git hook to reload after server push?
+;;   - would need a way to not do anything if not running
+;;   - maybe a --repl-connect-only flag?
+;;   - and what would the user see if it fails to reload?
+;; - add-lib leaves space at end of each line
 ;; - is reload broken on bb?
+;; - scheduler!!!
 ;; - bbin mode
 ;;   - a way to make your own cli tool
 ;;   - install using bbin

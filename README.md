@@ -13,6 +13,8 @@ Invoker aims to make the following usecases easy:
 - allowing agents to interact with your clojure process
 - adding dependencies and reloading code without restarting the process
 
+If you want to watch a video about Invoker, there's [Vars are all you need](https://www.youtube.com/watch?v=f9mtFrPnX5g) hosted by the wonderful London Clojurians.
+
 The invoker:
 
 ![It's magic. I ain't gotta explain shit.](its-magic.jpg)
@@ -407,6 +409,7 @@ This will cause pushes to the checked out branch to update the files unless ther
 $ ssh user@server
 $ mkdir -p ~/repos/app
 $ cd ~/repos/app
+$ git init
 $ git config receive.denyCurrentBranch updateInstead
 ```
 
