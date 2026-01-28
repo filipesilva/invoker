@@ -13,7 +13,7 @@ Invoker aims to make the following usecases easy:
 - allowing agents to interact with your clojure process
 - adding dependencies and reloading code without restarting the process
 
-If you want to watch a video about Invoker, there's [Vars are all you need](https://www.youtube.com/watch?v=f9mtFrPnX5g) hosted by the wonderful London Clojurians.
+If you want to watch a video about Invoker, there's [Vars are all you need](https://www.youtube.com/watch?v=qYXRmab-asU) hosted by the wonderful London Clojurians.
 
 The invoker:
 
