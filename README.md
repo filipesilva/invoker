@@ -122,6 +122,17 @@ Calling it with no arguments shows help.
 
 Some `nvk` commands use `git` and `ssh`.
 
+If you want to instead install it locally as a babashka task, add this to your `bb.edn`:
+
+``` clojure
+{:deps {io.github.filipesilva/invoker {:git/tag "v0.4.7" :git/sha "2d77d"}}
+ :tasks
+ {nvk {:requires ([invoker.nvk :as nvk])
+       :task (apply nvk/-main *command-line-args*)}}}
+```
+
+Now you should be able to run `bb nvk`.
+
 
 ## Content Negotiation
 
