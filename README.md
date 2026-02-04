@@ -253,7 +253,7 @@ Invoker will setup the following developer tools when creating a new process:
 - [`clojure+.print`](https://github.com/tonsky/clojure-plus#clojuretest) and [`clojure+.error`](https://github.com/tonsky/clojure-plus#clojureerror) improve printing of values and errors
 - [`clojure+.test`](https://github.com/tonsky/clojure-plus#clojuretest) installs the test runner
 - [`clojure+.hashp`](https://github.com/tonsky/clojure-plus#clojurehasp) allows you to print pretty much anything by putting `#p` before the expression, including in threading macros
-- [`clj-reload`](https://github.com/tonsky/clj-reload) tracks and reloads changed namespaces
+- [`clj-reload`](https://github.com/tonsky/clj-reload) tracks and reloads changed namespaces, use `defonce` instead of `def` to keep global state
 
 
 ## Helper Commands
