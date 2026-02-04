@@ -254,6 +254,9 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
 ;; - add-lib leaves space at end of each line
 ;; - is reload broken on bb?
 ;; - scheduler!!!
+;;   - fdb has a scheduler, maybe we can just use that one
+;; - sse!!!
+;; - nvk routes, or some other way to get route listing
 ;; - bbin mode
 ;;   - a way to make your own cli tool
 ;;   - install using bbin
