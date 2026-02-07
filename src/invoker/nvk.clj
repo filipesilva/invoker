@@ -211,8 +211,8 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
     (utils/connect-or-exec 'invoker.cli/invoke (maybe-force-clj-exec cmd))))
 
 (defn update-default [defaults [k m]]
-  (if-some [default (k defaults)]
-    [k (assoc m :default default)]
+  (if (contains? defaults k)
+    [k (assoc m :default (k defaults))]
     [k m]))
 
 (defn spec-with-defaults [base-spec args]
