@@ -56,17 +56,14 @@
        (.setContextClassLoader (Thread/currentThread))))
 
 (defn devtools []
-  (set-dynamic-classloader!)
-  (try-bool ((requiring-resolve 'clojure+.print/install!)))
-  (try-bool ((requiring-resolve 'clojure+.error/install!)))
-  (try-bool ((requiring-resolve 'clojure+.test/install!)))
-  (try-bool ((requiring-resolve 'clojure+.hashp/install!)))
-  (try-bool ((requiring-resolve 'clj-reload.core/init) {:dirs ["src" "resources" "test"]}))
-  (reset! devtools-installed? true))
-
-(defn ensure-devtools []
   (when-not @devtools-installed?
-    (devtools)))
+    (set-dynamic-classloader!)
+    (try-bool ((requiring-resolve 'clojure+.print/install!)))
+    (try-bool ((requiring-resolve 'clojure+.error/install!)))
+    (try-bool ((requiring-resolve 'clojure+.test/install!)))
+    (try-bool ((requiring-resolve 'clojure+.hashp/install!)))
+    (try-bool ((requiring-resolve 'clj-reload.core/init) {:dirs ["src" "resources" "test"]}))
+    (reset! devtools-installed? true)))
 
 (comment
   (devtools)
@@ -410,25 +407,25 @@
     cmd))
 
 (defn connect [sym cmd]
-  (let [[host port]     (-> cmd :opts :repl-connect (str/split #":"))
-        cmd             (update cmd :opts assoc :exit false)
-        ensure-invoker  `(when-not (try
-                                     (requiring-resolve 'invoker.cli/invoke)
-                                     (catch Exception _# nil))
-                           (let [coord# ~(invoker-coord)]
-                             (binding [*out* *err*]
-                               (println "Adding invoker dep to current process via clojure.repl.deps/add-lib:")
-                               (println 'io.github.filipesilva/invoker coord#)
-                               (flush))
-                             ((requiring-resolve 'clojure.repl.deps/add-lib)
-                              'io.github.filipesilva/invoker coord#)))
-        ensure-devtools `((requiring-resolve 'invoker.utils/ensure-devtools))
-        expr            (format "%s %s ((requiring-resolve '%s) '%s)" ensure-invoker ensure-devtools sym cmd)
-        ret             (try (nrepl-client/eval-expr {:port port :expr expr})
-                             (catch java.net.ConnectException _
-                               (throw (ex-info "Cannot connect to nREPL server" {:host host, :port port})))
-                             (catch java.io.EOFException _
-                               (throw (ex-info "nREPL server exited" {:host host, :port port}))))]
+  (let [[host port]    (-> cmd :opts :repl-connect (str/split #":"))
+        cmd            (update cmd :opts assoc :exit false)
+        ensure-invoker `(when-not (try
+                                    (requiring-resolve 'invoker.cli/invoke)
+                                    (catch Exception _# nil))
+                          (let [coord# ~(invoker-coord)]
+                            (binding [*out* *err*]
+                              (println "Adding invoker dep to current process via clojure.repl.deps/add-lib:")
+                              (println 'io.github.filipesilva/invoker coord#)
+                              (flush))
+                            ((requiring-resolve 'clojure.repl.deps/add-lib)
+                             'io.github.filipesilva/invoker coord#)))
+        process-setup  `((requiring-resolve 'invoker.utils/process-setup) {:sym '~sym, :cmd '~cmd})
+        expr           (format "%s %s" ensure-invoker process-setup)
+        ret            (try (nrepl-client/eval-expr {:port port :expr expr})
+                            (catch java.net.ConnectException _
+                              (throw (ex-info "Cannot connect to nREPL server" {:host host, :port port})))
+                            (catch java.io.EOFException _
+                              (throw (ex-info "nREPL server exited" {:host host, :port port}))))]
     (System/exit (-> ret :vals last edn/read-string :exit-code (or 0)))))
 
 (defn connect-or-exec [sym cmd]
