@@ -263,6 +263,7 @@ Invoker comes with a set of helper commands in `invoker.cli`, which is configure
 ``` sh
 nvk reload              # Reload changed namespaces
 nvk reload :all         # Reload all namespaces
+nvk routes              # List routes for vars with :invoker/http metadata
 nvk dir app             # List public vars in ns
 nvk source app/my-fn    # Source code for var
 nvk doc app/my-fn       # Print var docstring

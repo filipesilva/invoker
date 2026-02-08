@@ -7,6 +7,7 @@
    [clojure+.test :as clojure+.test]
    [clojure.edn :as edn]
    [clojure.java.io :as io]
+   [clojure.string :as str]
    [clojure.repl]
    [clojure.repl.deps]
    [clojure.tools.namespace.find :as ns-find]
@@ -175,6 +176,18 @@
   (let [url (str "https://clojuredocs.org/search?q=" q)]
     (process/shell "open" url)
     url))
+
+(defn routes
+  "List routes for vars with :invoker/http metadata."
+  []
+  (let [nss  (ns-find/find-namespaces-in-dir (io/file "test"))
+        _    (run! require nss)]
+    (->> nss
+         (mapcat (comp vals ns-publics))
+         (filter #(-> % meta :invoker/http))
+         (map #(str "/" (-> % symbol str (str/replace "." "/"))))
+         sort
+         vec)))
 
 (defn exit
   "Exit the process with exit-code or 0."

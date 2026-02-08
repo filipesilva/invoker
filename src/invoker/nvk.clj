@@ -148,6 +148,7 @@
    "Helper " [:magenta "commands"] ":\n"
    [:blue "  nvk reload"] "                 Reload changed namespaces\n"
    [:blue "  nvk reload :all"] "            Reload all namespaces\n"
+   [:blue "  nvk routes"] "                 List routes for vars with :invoker/http metadata.\n"
    [:blue "  nvk dir app"] "                List public vars in ns, or in ns-default\n"
    [:blue "  nvk source app/my-fn"] "       Source code for var\n"
    [:blue "  nvk doc app/my-fn"] "          Print var docstring\n"
@@ -256,7 +257,6 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
 ;; - scheduler!!!
 ;;   - fdb has a scheduler, maybe we can just use that one
 ;; - sse!!!
-;; - nvk routes, or some other way to get route listing
 ;; - bbin mode
 ;;   - a way to make your own cli tool
 ;;   - install using bbin
