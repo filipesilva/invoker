@@ -14,6 +14,7 @@
    [invoker.http :as http]
    [invoker.repl :as repl]
    [invoker.utils :as utils]
+   [rewrite-clj.node :as n]
    [rewrite-clj.zip :as z]))
 
 (def ^:dynamic *cmd* nil)
@@ -140,7 +141,9 @@
            zloc      (-> deps-zloc
                          (z/assoc lib coord)
                          (z/find-value z/next lib)
-                         (cond-> first-key (-> (z/insert-newline-left)
+                         (cond-> first-key (-> z/left*
+                                               (z/replace (n/newlines 1))
+                                               z/right*
                                                (z/insert-space-left indent)))
                          z/up)]
        (spit deps-file (z/root-string zloc))

@@ -252,10 +252,19 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
 ;;   - would need a way to not do anything if not running
 ;;   - maybe a --repl-connect-only flag?
 ;;   - and what would the user see if it fails to reload?
-;; - add-lib leaves space at end of each line
-;; - is reload broken on bb?
 ;; - scheduler!!!
 ;;   - fdb has a scheduler, maybe we can just use that one
+;;     - can't, neither cronstar nor chime run in bb
+;;   - can make my own
+;;     - record when the server started
+;;     - record last call
+;;     - support cron in :invoker/schedule
+;;     - every 5s or whatever, gather all with :invoker/schedule
+;;     - check if next invocation after server starter or last called is before now 
+;;     - call them in futures, record last called
+;;   - https://github.com/finity-ai/clj-cron-parse
+;;     - looks really close to what I need to parse cron
+;;     - doesn't work in bb either
 ;; - sse!!!
 ;; - bbin mode
 ;;   - a way to make your own cli tool
