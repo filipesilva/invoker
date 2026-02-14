@@ -121,6 +121,7 @@
     (throw (ex-info "add-lib is not available in babashka, use with --dialect clj to create deps.edn" {})))
   (utils/when-not-bb?
    (with-redefs [*repl* true]
+     (utils/set-dynamic-classloader!)
      (require 'clojure.java.basis)
      (let [lib       (symbol lib)
            _         (clojure.repl.deps/add-lib lib)

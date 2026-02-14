@@ -15,6 +15,7 @@
    [medley.core :as m]
    [ring.util.codec :as codec])
   (:import
+   [clojure.lang DynamicClassLoader]
    [java.net Socket SocketException]))
 
 (def ex-info-msgs
@@ -45,15 +46,24 @@
   `(try ~expr
      (catch Exception _#)))
 
-(def devtools-installed? (atom false))
+(defonce devtools-installed? (atom false))
+
+(defn has-dynamic-classloader? []
+  (let [loader (loop [loader (.getContextClassLoader (Thread/currentThread))]
+                 (let [parent (.getParent loader)]
+                   (if (instance? DynamicClassLoader parent)
+                     (recur parent)
+                     loader)))]
+    (instance? DynamicClassLoader loader)))
 
 (defn set-dynamic-classloader!
-  "Set dynamic classloader to current thread."
+  "Set dynamic classloader to current thread if it doesn't have one yet."
   []
-  (->> (Thread/currentThread)
-       (.getContextClassLoader)
-       (clojure.lang.DynamicClassLoader.)
-       (.setContextClassLoader (Thread/currentThread))))
+  (when-not (has-dynamic-classloader?)
+    (->> (Thread/currentThread)
+         (.getContextClassLoader)
+         (DynamicClassLoader.)
+         (.setContextClassLoader (Thread/currentThread)))))
 
 (defn devtools []
   (when-not @devtools-installed?
