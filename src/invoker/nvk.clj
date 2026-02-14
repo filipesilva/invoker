@@ -253,18 +253,15 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
 ;;   - maybe a --repl-connect-only flag?
 ;;   - and what would the user see if it fails to reload?
 ;; - scheduler!!!
-;;   - fdb has a scheduler, maybe we can just use that one
-;;     - can't, neither cronstar nor chime run in bb
 ;;   - can make my own
 ;;     - record when the server started
 ;;     - record last call
-;;     - support cron in :invoker/schedule
-;;     - every 5s or whatever, gather all with :invoker/schedule
+;;     - support cron in :invoker/cron
+;;     - gather all with :invoker/cron
+;;       - use same mechanism as invoker.cli/routes, refactor it into a invoker.utils/gather fn for any metadata key
 ;;     - check if next invocation after server starter or last called is before now 
-;;     - call them in futures, record last called
-;;   - https://github.com/finity-ai/clj-cron-parse
-;;     - looks really close to what I need to parse cron
-;;     - doesn't work in bb either
+;;     - call them in futures, record when next should be
+;;     - check for stuff to run twice every minute
 ;; - sse!!!
 ;; - bbin mode
 ;;   - a way to make your own cli tool
@@ -275,11 +272,19 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
 ;;   - should replace default ns
 
 ;; TODO: maybe
+;; - https://github.com/clojure/tools.deps.edn
+;;   - has no deps
+;;   - might help with reading deps.edn paths, with aliases
 ;; - markdown parse/render
 ;;   - https://github.com/nextjournal/markdown parses it, has a nice hiccup-like representation
 ;;   - in the playground it looks like it renders to html at least
 ;;   - might need custom rendering to markdown from the hiccup syntax
 ;;   - but it's a start
+;;   - maybe a low tech way to do rendering is to take html hiccup, and make md out of it
+;;     - a bit like how stripe docs have md and html
+;;     - would be cool for docs sites
+;;   - https://github.com/clojure/java.doc converts java html docs to markdown
+;;     - uses a java lib called flexmark
 ;; - if I add dpm as a dependency on nvk, can I just call dpm/up as setup?
 ;;   - should do a .datomic-port or .dpm-port file on it, would be really nice
 ;;   - https://docs.datomic.com/operation/transactor.html lists a health check port
@@ -334,6 +339,9 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
 ;;     - https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/ETag
 ;;   - fns could have etag fn in metadata, call it before calling fn
 ;;     - for pure fns this is identity over args, like memo
+;;   - https://github.com/scicloj/pocket
+;;     - exactly what I was thinking about for on-disk caching
+;;     - could easy control invocations with :invoker/cache metadata
 ;; - fn that takes symbol, and returns url for symbol, to use in htmx url generation
 ;; - exec-args puts :paths in, but shouldn't if there's already any in the deps.edn/bb.edn
 
@@ -358,8 +366,6 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
 ;;       - cli has channel with backpressure via pipes and pagers, errors via stderr
 ;;       - repl (clj) has channel backpressure semantics for core async channels and lazy seqs, errors are just throw?
 ;;       - http sse doesn't have great backpressure, but does have channel semantics, and err
-;; - scheduler
-;;   - whats the difference between scheduling and polling? as far as user intent
 ;; - env
 ;;   - rails is a good example https://guides.rubyonrails.org/configuring.html
 ;;   - would be very nice to support different envs on the same running process
@@ -417,6 +423,9 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
 ;;       - https://swannodette.github.io/2025/11/24/aimless/
 ;;         - both a good example of adding cljs, and a usecase for invoker
 ;;       - official docs https://clojurescript.org/guides/quick-start
+;;       - https://clojurescript.org/news/2018-03-26-clojurescript-command-line
+;;         - cool examples of "just" calling a main with cljs
+;;         - looks like a nice way to support --dialect cljs for node apps
 ;;     - could just integrate with shadow-cljs?
 ;;   - live reload on changes during dev
 ;;   - helpful debug stuff like rails erubi, that shows the templates where the html came from
