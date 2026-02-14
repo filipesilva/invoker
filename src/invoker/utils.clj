@@ -9,6 +9,7 @@
    [clojure.edn :as edn]
    [clojure.java.io :as io]
    [clojure.pprint :as pprint]
+   [clojure.tools.namespace.find :as ns-find]
    [clojure.string :as str]
    [hiccup2.core :as hiccup]
    [hickory.core :as hickory]
@@ -445,6 +446,16 @@
                  (-> cmd :opts :repl-git-remote)))
       (connect sym cmd)
       (exec sym cmd))))
+
+(defn gather
+  "Finds public vars in src/ with the given metadata keyword."
+  [kw]
+  (let [nss (ns-find/find-namespaces-in-dir (io/file "src"))
+        _   (run! require nss)]
+    (->> nss
+         (mapcat (comp vals ns-publics))
+         (filter #(-> % meta kw))
+         vec)))
 
 (def bb? (System/getProperty "babashka.version"))
 

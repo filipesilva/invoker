@@ -1,5 +1,7 @@
 (ns invoker.examples
-  (:require [clojure.string :as str]))
+  (:require
+   [clojure.string :as str]
+   [invoker.cron :as cron]))
 
 (def an-int 1)
 (def a-map {:a 1})
@@ -53,3 +55,11 @@
   {:invoker/http {:redirect {:to #'argv, :args (fn [ret] [ret])}}}
   []
   2)
+
+(defonce cron-state (atom nil))
+
+(defn cron
+  ;; every minute
+  {:invoker/cron "* * * * *"}
+  []
+  (reset! cron-state (cron/t)))

@@ -248,20 +248,17 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
         (throw e)))))
 
 ;; TODO: now
+;; - think nvk repl is not correctly storing the *cmd*
+;;   - this means that the invoker.cli/restart call might not work on nvk repl
+;;   - this is mostly because of how invoker.repl/server-process calls stuff
+;;     - it's not like the rest of the process invocations
+;;     - maybe there should be a invoker.cli/repl-server?
+;;       - that way you could call it by itself, with no client
+;;       - and the client would invoke it with the ignore-sigint stuff?
 ;; - git hook to reload after server push?
 ;;   - would need a way to not do anything if not running
 ;;   - maybe a --repl-connect-only flag?
 ;;   - and what would the user see if it fails to reload?
-;; - scheduler!!!
-;;   - can make my own
-;;     - record when the server started
-;;     - record last call
-;;     - support cron in :invoker/cron
-;;     - gather all with :invoker/cron
-;;       - use same mechanism as invoker.cli/routes, refactor it into a invoker.utils/gather fn for any metadata key
-;;     - check if next invocation after server starter or last called is before now 
-;;     - call them in futures, record when next should be
-;;     - check for stuff to run twice every minute
 ;; - sse!!!
 ;; - bbin mode
 ;;   - a way to make your own cli tool

@@ -5,7 +5,9 @@
    [clojure.pprint :as pprint]
    [clojure.string :as str]
    [clojure.test :refer [deftest is are testing]]
+   [filipesilva.inst :as inst]
    [invoker.cli :as cli]
+   [invoker.cron :as cron]
    [invoker.examples :as examples]
    [invoker.http :as http]
    [invoker.utils :as utils]))
@@ -288,6 +290,50 @@
            ((http/handler) {:uri "invoker.examples/an-int"})))
     (is (= {:status 200, :body "42\n", :content-type "application/edn"}
            ((http/handler) {:uri "invoker.examples/http"})))))
+
+(deftest cron-tick-test
+  (let [v    #'examples/cron
+        vars [v]]
+    (testing "no trigger before first cron boundary"
+      (let [start  (inst/inst "2026-01-01T00:00:30")
+            now    (inst/inst "2026-01-01T00:00:45")
+            result (cron/tick now {v start} vars)]
+        (is (empty? (:to-trigger result)))
+        (is (= start (get-in result [:last-triggered v])))))
+
+    (testing "triggers after one cron boundary"
+      (let [start  (inst/inst "2026-01-01T00:00:30")
+            now    (inst/inst "2026-01-01T00:01:30")
+            result (cron/tick now {v start} vars)]
+        (is (= 1 (count (:to-trigger result))))
+        (is (= (inst/inst "2026-01-01T00:01:00")
+               (-> result :to-trigger first :time)))))
+
+    (testing "skips intermediate, fires latest"
+      (let [start  (inst/inst "2026-01-01T00:00:30")
+            now    (inst/inst "2026-01-01T00:05:30")
+            result (cron/tick now {v start} vars)]
+        (is (= 1 (count (:to-trigger result))))
+        (is (= (inst/inst "2026-01-01T00:05:00")
+               (-> result :to-trigger first :time)))))
+
+    (testing "successive ticks advance correctly"
+      (let [t0 (inst/inst "2026-01-01T00:00:30")
+            t1 (inst/inst "2026-01-01T00:01:30")
+            t2 (inst/inst "2026-01-01T00:02:30")
+            r1 (cron/tick t1 {v t0} vars)
+            r2 (cron/tick t2 (:last-triggered r1) vars)]
+        (is (= (inst/inst "2026-01-01T00:01:00") (-> r1 :to-trigger first :time)))
+        (is (= (inst/inst "2026-01-01T00:02:00") (-> r2 :to-trigger first :time)))))
+
+    (testing "fires var and sets *time* via cron-state"
+      (reset! examples/cron-state nil)
+      (let [start  (inst/inst "2026-01-01T00:00:30")
+            now    (inst/inst "2026-01-01T00:01:30")
+            result (cron/tick now {v start} vars)]
+        (doseq [{v :var, t :time} (:to-trigger result)]
+          (binding [cron/*t* t] (v)))
+        (is (= (inst/inst "2026-01-01T00:01:00") @examples/cron-state))))))
 
 ;; nvk invoker-test e2e
 (defn e2e []

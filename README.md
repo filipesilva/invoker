@@ -218,6 +218,34 @@ $ curl localhost/app/todo.html
 ```
 
 
+## Cron
+
+Call functions on a schedule using [Cron expressions](https://en.wikipedia.org/wiki/Cron) in `:invoker/cron`:
+
+``` clojure
+(require '[invoker.cron :as cron])
+
+(defn still-alive
+  ;; every minute
+  {:invoker/cron "* * * * *"}
+  []
+  (println "hello at" (cron/t))
+```
+
+The scheduler starts with the nREPL server on `nvk http` and `nvk repl`.
+
+``` sh
+$ nvk http
+Started nREPL server at localhost:61621
+Started HTTP server at http://localhost
+hello at #inst "2026-02-14T20:40:00.000-00:00"
+hello at #inst "2026-02-14T20:41:00.000-00:00"
+hello at #inst "2026-02-14T20:42:00.000-00:00"
+```
+
+`(cron/t)` returns the cron inst that triggered this call. You can use it to synchronize single calls on multiple processes.
+
+
 ## Tests
 
 Run tests in `test/app_test.clj` using [`clojure+.test`](https://github.com/tonsky/clojure-plus#clojuretest), reloading changed files:
@@ -264,6 +292,7 @@ Invoker comes with a set of helper commands in `invoker.cli`, which is configure
 nvk reload              # Reload changed namespaces
 nvk reload :all         # Reload all namespaces
 nvk routes              # List routes for vars with :invoker/http metadata
+nvk crons               # List vars with :invoker/cron schedules
 nvk dir app             # List public vars in ns
 nvk source app/my-fn    # Source code for var
 nvk doc app/my-fn       # Print var docstring

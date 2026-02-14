@@ -23,3 +23,12 @@
   {:id      42
    :done    false
    :content "foo the bar"})
+
+(require '[invoker.cron :as cron])
+(require '[filipesilva.inst :as inst])
+
+(defn still-alive
+  ;; every minute
+  {:invoker/cron "* * * * *"}
+  []
+  (println "hello at" (cron/t) (inst/inst)))
