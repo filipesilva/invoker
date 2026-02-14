@@ -184,7 +184,7 @@
 (defn routes
   "List routes for vars with :invoker/http metadata."
   []
-  (let [nss  (ns-find/find-namespaces-in-dir (io/file "test"))
+  (let [nss  (ns-find/find-namespaces-in-dir (io/file "src"))
         _    (run! require nss)]
     (->> nss
          (mapcat (comp vals ns-publics))
