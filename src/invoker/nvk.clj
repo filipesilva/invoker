@@ -248,6 +248,7 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
         (throw e)))))
 
 ;; TODO: now
+;; - make sure -rc nil works to force no connection
 ;; - think nvk repl is not correctly storing the *cmd*
 ;;   - this means that the invoker.cli/restart call might not work on nvk repl
 ;;   - this is mostly because of how invoker.repl/server-process calls stuff
