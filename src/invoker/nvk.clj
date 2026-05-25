@@ -268,11 +268,23 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
 ;;     - maybe can replace itself with clj?
 ;;   - should be able to take nvk options somehow
 ;;   - should replace default ns
+;; - nvk live-reload
+;;   - watches src, calls nvk reload when they change
+;;   - is it useful tho?
+;;   - maybe the generalization is better
+;;     - nvk watch reload test
+;;     - nvk watch foo.bar/baz
+;; - nvk status
+;;   - https://github.com/filipesilva/invoker/issues/3#issuecomment-4199034001
+;; - rebel readline supports bb now
+;;   - update
+
 
 ;; TODO: maybe
 ;; - https://github.com/clojure/tools.deps.edn
 ;;   - has no deps
 ;;   - might help with reading deps.edn paths, with aliases
+;;   - https://github.com/clojure/tools.deps.edn
 ;; - markdown parse/render
 ;;   - https://github.com/nextjournal/markdown parses it, has a nice hiccup-like representation
 ;;   - in the playground it looks like it renders to html at least
@@ -384,6 +396,8 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
 ;;     - then you have a separate --http-auth sym option
 ;;   - could use the contents of :invoker/http fn metadata
 ;;     - e.g. {:invoker/http :auth} or something
+;;   - have --http-auth sym
+;;     - all http calls go through auth unless they have {:invoker/http {:auth false}}
 ;; - socket repl
 ;; - http verbs
 ;;   - atm there's no verbs really, anything works
