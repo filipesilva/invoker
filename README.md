@@ -245,6 +245,23 @@ hello at #inst "2026-02-14T20:42:00.000-00:00"
 
 `(cron/t)` returns the cron inst that triggered this call. You can use it to synchronize single calls on multiple processes.
 
+Call `(cron/help)` to print cron syntax:
+
+```
+* * * * *
+| | | | |
+| | | | day of the week (0–6) (Sunday to Saturday)
+| | | month (1–12)
+| | day of the month (1–31)
+| hour (0–23)
+minute (0–59)
+
+* any value
+, value list separator
+- range of values
+/ step values
+```
+
 
 ## Tests
 

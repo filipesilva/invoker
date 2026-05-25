@@ -70,3 +70,19 @@
             (utils/sleep ms-to-next))))
       (catch Throwable e
         (utils/print-err-exit false 1 e)))))
+
+(defn help []
+  (println "
+* * * * *
+| | | | |
+| | | | day of the week (0–6) (Sunday to Saturday)
+| | | month (1–12)
+| | day of the month (1–31)
+| hour (0–23)
+minute (0–59)
+
+* any value
+, value list separator
+- range of values
+/ step values"))
+
