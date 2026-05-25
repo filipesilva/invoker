@@ -391,7 +391,6 @@ In your `src/app.clj` add:
    [datomic.api :as d]
    [filipesilva.datomic-pro-manager :as dpm]))
 
-(def db-uri "datomic:sql://app?jdbc:sqlite:./storage/sqlite.db")
 (defonce *conn (atom nil))
 
 ;; https://docs.datomic.com/schema/schema-reference.html
@@ -401,8 +400,8 @@ In your `src/app.clj` add:
 (defn start []
   (future (dpm/up))
   (dpm/wait-for-up)
-  (d/create-database db-uri)
-  (reset! *conn (d/connect db-uri))
+  (d/create-database (dpm/db-uri "app"))
+  (reset! *conn (d/connect (dpm/db-uri "app")))
   @(d/transact @*conn schema))
 
 (defn db-stats
