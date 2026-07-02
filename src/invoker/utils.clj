@@ -307,6 +307,31 @@
     (when (port-taken? port)
       port)))
 
+(def probe-timeout-ms 3000)
+
+(defn nrepl-probe
+  [port]
+  (let [expr  "{:pid (.pid (java.lang.ProcessHandle/current)), :dialect (if (System/getProperty \"babashka.version\") :bb :clj)}"
+        probe (future
+                (catch-nil
+                 (-> (nrepl-client/eval-expr {:port port, :expr expr})
+                     :vals last edn/read-string)))]
+    (deref probe probe-timeout-ms nil)))
+
+(defn http-probe
+  [port]
+  (catch-nil
+   (with-open [socket (Socket. "localhost" port)]
+     (.setSoTimeout socket probe-timeout-ms)
+     (let [out (io/writer socket)
+           in  (io/reader socket)]
+       (.write out "GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n")
+       (.flush out)
+       (.readLine in)))))
+
+(defn http-url [port]
+  (str "http://localhost" (when-not (= port 80) (str ":" port))))
+
 (defn port-or-random [port]
   (if (= 0 port)
     (with-open [socket (java.net.ServerSocket. 0)]

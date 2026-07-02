@@ -92,6 +92,6 @@
     (httpkit.server/run-server (http-handler opts) {:port http-port})
     (utils/wait-for-port http-port)
     (utils/write-port-file ".http-port" http-port)
-    (println (str "Started HTTP server at http://localhost" (when-not (= http-port 80) (str ":" http-port))))
+    (println (str "Started HTTP server at " (utils/http-url http-port)))
     @(promise)))
 

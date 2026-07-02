@@ -338,7 +338,9 @@
 ;; nvk invoker-test e2e
 (defn e2e []
   (let [opts {:dir "examples/simple"}
-        cmd-out #(str/includes? (:out (process/sh opts %1)) %2)
+        cmd-out (fn [cmd & substrs]
+                  (let [out (:out (process/sh opts cmd))]
+                    (every? #(str/includes? out %) substrs)))
         cmd-err #(str/includes? (:err (process/sh opts %1)) %2)]
 
     ;; help
@@ -354,11 +356,13 @@
     (assert (cmd-out "nvk test app-test/my-fn-test" "{:test 1, :pass 1, :fail 0, :error 0}"))
 
     ;; repl and http
-    (assert (cmd-err "nvk reload" "No nREPL process to connect to")) 
+    (assert (cmd-err "nvk reload" "No nREPL process to connect to"))
+    (assert (cmd-out "nvk --status" "no .nrepl-port file" "no .http-port file"))
     (process/process opts "nvk http")
     (utils/wait-for-port 80)
     (assert (cmd-out "curl localhost/app/my-fn/1/2?a=3" "[1 2 {:a 3}]"))
     (assert (cmd-out "nvk app my-fn 1 2 --a 3" "[1 2 {:a 3}]"))
+    (assert (cmd-out "nvk --status" "at localhost:" "at http://localhost"))
 
     ;; helper commands
     (assert (cmd-out "nvk reload" "{:unloaded [], :loaded []}"))

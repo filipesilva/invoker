@@ -16,6 +16,8 @@
                       :coerce :boolean}]
    [:skill           {:desc   "Print README.md with Claude SKILL.md metadata"
                       :coerce :boolean}]
+   [:status          {:desc   "Show nREPL and HTTP server status"
+                      :coerce :boolean}]
    [:config          {:desc    "Invoker defaults config file"
                       :coerce  :string
                       :alias   :c
@@ -180,6 +182,32 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
 ---\n")
   (println (slurp (str utils/invoker-global-dir "/README.md"))))
 
+(defn server-status [port-file probe up-str]
+  (let [port (utils/read-port-file port-file)]
+    (cond
+      (nil? port)
+      [[:gray "down"] (str ", no " port-file " file")]
+
+      (not (utils/port-taken? port))
+      [[:red "down"] (str ", " port-file " has port " port " but nothing is listening on it")]
+
+      :else
+      (if-let [info (probe port)]
+        [[:green "up"] (str " " (up-str port info))]
+        [[:red "not verified"] (str ", port " port " is listening but did not answer a probe")]))))
+
+(defn status []
+  (let [nrepl (future
+                (server-status ".nrepl-port" utils/nrepl-probe
+                               (fn [port {:keys [dialect pid]}]
+                                 (str "at localhost:" port ", " (name dialect) ", pid " pid))))
+        http  (future
+                (server-status ".http-port" utils/http-probe
+                               (fn [port _]
+                                 (str "at " (utils/http-url port)))))]
+    (apply bling/print-bling "nREPL " @nrepl)
+    (apply bling/print-bling "HTTP  " @http)))
+
 (defn maybe-force-clj-exec [{:as cmd, :keys [opts args]}]
   (if (= 'invoker.cli (:ns-default opts))
     (cond-> cmd
@@ -204,6 +232,9 @@ description: How to use nvk (Invoker) as a CLI, HTTP, and REPL interface for Clo
 
     (:skill opts)
     (skill)
+
+    (:status opts)
+    (status)
 
     (empty? args)
     (help spec)
