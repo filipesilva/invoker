@@ -4,7 +4,7 @@ Zero config CLI, HTTP, and REPL interface for Clojure.
 
 Invoked vars run in [Clojure](https://clojure.org) if there's a `deps.edn`, otherwise in [Babashka](https://github.com/babashka/babashka).
 
-Commands will automatically connect to an existing [nREPL server](https://nrepl.org/nrepl/index.html) if available using `.nrepl-port`. The `nvk http` and `nvk repl` commands start a nREPL server that can be connected to.
+Commands will automatically connect to an existing [nREPL server](https://nrepl.org/nrepl/index.html) if available using `.nrepl-port`. The `nvk http` and `nvk repl` commands start a nREPL server that can be connected to. You can verify running servers with `nvk --status`.
 
 Invoker aims to make the following usecases easy:
 - making a simple webapp from scratch, possibly with Datomic
@@ -336,6 +336,7 @@ Usage: nvk <options>* <command> <args>*
         --help                                     Show doc for var
         --version                                  Show version
         --skill                                    Print README.md with Claude SKILL.md metadata
+        --status                                   Show nREPL and HTTP server status
   -c,   --config          nvk.edn                  Invoker defaults config file
   -e,   --ext                                      Extension shorthand (.edn/.json/.yaml/.html/.txt) for content-type/accept MIME types
   -ct,  --content-type                             MIME type for body (last arg or piped input) on CLI content negotiation
